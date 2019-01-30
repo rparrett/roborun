@@ -169,6 +169,8 @@ fn main() {
     let on = RefCell::new(on);
     
     testbed.add_callback(move |world_owner, _, time| {
+        let mut world = world_owner.get_mut();
+
         let mut t = last_tick.borrow_mut();
         let mut o = on.borrow_mut();
 
@@ -176,7 +178,7 @@ fn main() {
             return;
         }
 
-        if let Some(mut j) = world_owner.multibody_link_mut(leg_a_handle) {
+        if let Some(mut j) = world.multibody_link_mut(leg_a_handle) {
             let dof = j.joint_mut().downcast_mut::<RevoluteJoint<f32>>().unwrap();
                 
             if *o {
@@ -188,7 +190,7 @@ fn main() {
             dof.enable_angular_motor();
         }
         
-        if let Some(mut j) = world_owner.multibody_link_mut(leg_b_handle) {
+        if let Some(mut j) = world.multibody_link_mut(leg_b_handle) {
             let dof = j.joint_mut().downcast_mut::<RevoluteJoint<f32>>().unwrap();
 
             if *o {
@@ -200,7 +202,7 @@ fn main() {
             dof.enable_angular_motor();
         }
         
-        if let Some(mut j) = world_owner.multibody_link_mut(leg_c_handle) {
+        if let Some(mut j) = world.multibody_link_mut(leg_c_handle) {
             let dof = j.joint_mut().downcast_mut::<RevoluteJoint<f32>>().unwrap();
 
             if *o {
@@ -212,7 +214,7 @@ fn main() {
             dof.enable_angular_motor();
         }
         
-        if let Some(mut j) = world_owner.multibody_link_mut(leg_d_handle) {
+        if let Some(mut j) = world.multibody_link_mut(leg_d_handle) {
             let dof = j.joint_mut().downcast_mut::<RevoluteJoint<f32>>().unwrap();
 
             if *o {
