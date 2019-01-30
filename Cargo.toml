@@ -1,0 +1,12 @@
+[package]
+name = "roborun"
+version = "0.1.0"
+authors = ["Rob Parrett <robparrett@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+stdweb = "0.4.13"
+nalgebra = "0.16"
+ncollide3d = "0.17"
+nphysics3d = "0.9"
+nphysics_testbed3d = "0.1"
