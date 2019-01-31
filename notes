@@ -1,4 +1,12 @@
 - Docs seem to indicate that you should use rust nightly, but the thing doesn't compile in rust nightly
 - Rust stable seems to work for the most part. (1.32)
-- Some demos do not seem to work
 - cargo web start --target=wasm32-unknown-unknown --port=8004 --release
+
+TODO
+
+Monitor joint position and adjust velocity toward a commanded position
+Run random sequences of commanded joint positions and pauses
+Tear down world or tear down robot and replace with a new robot
+Determine distance from start and right-side-up-ness for fitness
+Do some sort of optimization (GA are fun) for fitness
+Add additional interesting robot variants
