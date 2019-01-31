@@ -16,8 +16,8 @@ use nphysics3d::object::{BodyHandle, Material};
 use nphysics3d::volumetric::Volumetric;
 use nphysics3d::world::World;
 use nphysics_testbed3d::Testbed;
-use std::f32::consts::PI;
 use std::cell::RefCell;
+use std::f32::consts::PI;
 
 const COLLIDER_MARGIN: f32 = 0.01;
 
@@ -164,10 +164,10 @@ fn main() {
 
     let last_tick = 0.0;
     let last_tick = RefCell::new(last_tick);
-    
+
     let on = false;
     let on = RefCell::new(on);
-    
+
     testbed.add_callback(move |world_owner, _, time| {
         let mut world = world_owner.get_mut();
 
@@ -180,16 +180,16 @@ fn main() {
 
         if let Some(mut j) = world.multibody_link_mut(leg_a_handle) {
             let dof = j.joint_mut().downcast_mut::<RevoluteJoint<f32>>().unwrap();
-                
+
             if *o {
                 dof.set_desired_angular_motor_velocity(1.0);
             } else {
                 dof.set_desired_angular_motor_velocity(-1.0);
             }
-            
+
             dof.enable_angular_motor();
         }
-        
+
         if let Some(mut j) = world.multibody_link_mut(leg_b_handle) {
             let dof = j.joint_mut().downcast_mut::<RevoluteJoint<f32>>().unwrap();
 
@@ -198,10 +198,10 @@ fn main() {
             } else {
                 dof.set_desired_angular_motor_velocity(1.0);
             }
-            
+
             dof.enable_angular_motor();
         }
-        
+
         if let Some(mut j) = world.multibody_link_mut(leg_c_handle) {
             let dof = j.joint_mut().downcast_mut::<RevoluteJoint<f32>>().unwrap();
 
@@ -210,10 +210,10 @@ fn main() {
             } else {
                 dof.set_desired_angular_motor_velocity(-1.0);
             }
-            
+
             dof.enable_angular_motor();
         }
-        
+
         if let Some(mut j) = world.multibody_link_mut(leg_d_handle) {
             let dof = j.joint_mut().downcast_mut::<RevoluteJoint<f32>>().unwrap();
 
@@ -222,7 +222,7 @@ fn main() {
             } else {
                 dof.set_desired_angular_motor_velocity(1.0);
             }
-            
+
             dof.enable_angular_motor();
         }
 
