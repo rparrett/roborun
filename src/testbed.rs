@@ -39,14 +39,9 @@ pub struct Testbed {
     callbacks: Callbacks,
     time: f32,
     hide_overlay: bool,
-    persistant_contacts: HashMap<GenerationalId, bool>,
 
     font: Rc<Font>,
     running: RunMode,
-    cursor_pos: Point2<f32>,
-    grabbed_object: Option<BodyHandle>,
-    grabbed_object_constraint: Option<ConstraintHandle>,
-    grabbed_object_plane: (Point3<f32>, Vector3<f32>),
 }
 
 type Callbacks = Vec<Box<Fn(&mut WorldOwner, &mut GraphicsManager, f32)>>;
@@ -69,13 +64,8 @@ impl Testbed {
             nsteps: 1,
             time: 0.0,
             hide_overlay: false,
-            persistant_contacts: HashMap::new(),
             font: Font::default(),
             running: RunMode::Step,
-            cursor_pos: Point2::new(0.0f32, 0.0),
-            grabbed_object: None,
-            grabbed_object_constraint: None,
-            grabbed_object_plane: (Point3::origin(), na::zero()),
         }
     }
 
@@ -137,33 +127,6 @@ impl Testbed {
 
     pub fn graphics_mut(&mut self) -> &mut GraphicsManager {
         &mut self.graphics
-    }
-
-    pub fn load_obj(path: &str) -> Vec<(Vec<Point3<f32>>, Vec<usize>)> {
-        let path = Path::new(path);
-        let empty = Path::new("_some_non_existant_folder"); // dont bother loading mtl files correctly
-        let objects = obj::parse_file(&path, &empty, "").expect("Unable to open the obj file.");
-
-        let mut res = Vec::new();
-
-        for (_, m, _) in objects.into_iter() {
-            let vertices = m.coords().read().unwrap().to_owned().unwrap();
-            let indices = m.faces().read().unwrap().to_owned().unwrap();
-
-            let mut flat_indices = Vec::new();
-
-            for i in indices.into_iter() {
-                flat_indices.push(i.x as usize);
-                flat_indices.push(i.y as usize);
-                flat_indices.push(i.z as usize);
-            }
-
-            let m = (vertices, flat_indices);
-
-            res.push(m);
-        }
-
-        res
     }
 
     pub fn add_callback<F: Fn(&mut WorldOwner, &mut GraphicsManager, f32) + 'static>(
