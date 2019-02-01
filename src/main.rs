@@ -14,6 +14,7 @@ mod world_owner;
 mod engine;
 mod objects;
 mod robot;
+mod actuator;
 
 use na::{Isometry3, Point3, Real, Translation3, Unit, Vector2, Vector3};
 use ncollide3d::shape::{Ball, Cuboid, Plane, ShapeHandle};
@@ -39,7 +40,6 @@ fn main() {
      */
     let mut world = World::new();
     world.set_gravity(Vector3::new(0.0, -9.81, 0.0));
-    let max_leg_torque = 160.0;
 
     /*
      * Create a ground.
@@ -54,7 +54,7 @@ fn main() {
         Material::default(),
     );
 
-    let robot = Robot::new(&mut world);
+    let mut robot = Robot::spawn(&mut world);
 
     /*
      * Set up the testbed.
@@ -69,66 +69,37 @@ fn main() {
     let on = false;
     let on = RefCell::new(on);
 
+    let first_tick = true;
+    let first_tick = RefCell::new(first_tick);
+
+    let robot = RefCell::new(robot);
+
     testbed.add_callback(move |world_owner, _, time| {
-        let mut world = world_owner.get_mut();
+        let mut w = world_owner.get_mut();
 
-        let mut t = last_tick.borrow_mut();
-        let mut o = on.borrow_mut();
+        let mut last_tick = last_tick.borrow_mut();
+        let mut on = on.borrow_mut();
+        let mut first_tick = first_tick.borrow_mut();
 
-        if time < *t + 1.0 {
-            return;
-        }
-
-        if let Some(mut j) = world.multibody_link_mut(robot.actuators[0]) {
-            let dof = j.joint_mut().downcast_mut::<RevoluteJoint<f32>>().unwrap();
-
-            if *o {
-                dof.set_desired_angular_motor_velocity(1.0);
-            } else {
-                dof.set_desired_angular_motor_velocity(-1.0);
+        let mut robot = robot.borrow_mut();
+        
+        if *first_tick || time > *last_tick + 2.0 {
+            for a in robot.actuators.iter_mut() {
+                if *on {
+                    a.set_position(0.1);
+                } else {
+                    a.set_position(-1.0);
+                }
             }
 
-            dof.enable_angular_motor();
+            *on = !*on;
+            *last_tick = time;
+            *first_tick = false;
         }
-
-        if let Some(mut j) = world.multibody_link_mut(robot.actuators[1]) {
-            let dof = j.joint_mut().downcast_mut::<RevoluteJoint<f32>>().unwrap();
-
-            if *o {
-                dof.set_desired_angular_motor_velocity(-1.0);
-            } else {
-                dof.set_desired_angular_motor_velocity(1.0);
-            }
-
-            dof.enable_angular_motor();
+        
+        for a in robot.actuators.iter_mut() {
+            a.step(&mut w);
         }
-
-        if let Some(mut j) = world.multibody_link_mut(robot.actuators[2]) {
-            let dof = j.joint_mut().downcast_mut::<RevoluteJoint<f32>>().unwrap();
-
-            if *o {
-                dof.set_desired_angular_motor_velocity(1.0);
-            } else {
-                dof.set_desired_angular_motor_velocity(-1.0);
-            }
-
-            dof.enable_angular_motor();
-        }
-
-        if let Some(mut j) = world.multibody_link_mut(robot.actuators[3]) {
-            let dof = j.joint_mut().downcast_mut::<RevoluteJoint<f32>>().unwrap();
-
-            if *o {
-                dof.set_desired_angular_motor_velocity(-0.5);
-            } else {
-                dof.set_desired_angular_motor_velocity(0.5);
-            }
-
-            dof.enable_angular_motor();
-        }
-
-        *o = !*o;
-        *t = time;
     });
 
     testbed.look_at(Point3::new(30.0, -2.0, 0.0), Point3::new(0.0, -2.0, 0.0));

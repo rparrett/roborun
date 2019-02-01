@@ -71,7 +71,7 @@ impl Testbed {
             hide_overlay: false,
             persistant_contacts: HashMap::new(),
             font: Font::default(),
-            running: RunMode::Running,
+            running: RunMode::Step,
             cursor_pos: Point2::new(0.0f32, 0.0),
             grabbed_object: None,
             grabbed_object_constraint: None,
