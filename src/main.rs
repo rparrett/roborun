@@ -43,7 +43,7 @@ fn main() {
      * Create a ground.
      */
     let ground_shape = ShapeHandle::new(Cuboid::new(Vector3::new(50.0, 50.0, 50.0)));
-    let ground_pos = Isometry3::new(Vector3::y() * -57.0, na::zero());
+    let ground_pos = Isometry3::new(Vector3::y() * -60.5, na::zero());
     world.add_collider(
         COLLIDER_MARGIN,
         ground_shape,
