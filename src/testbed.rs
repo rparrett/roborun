@@ -38,7 +38,7 @@ pub struct Testbed {
     nsteps: usize,
     callbacks: Callbacks,
     time: f32,
-    hide_counters: bool,
+    hide_overlay: bool,
     persistant_contacts: HashMap<GenerationalId, bool>,
 
     font: Rc<Font>,
@@ -68,7 +68,7 @@ impl Testbed {
             graphics,
             nsteps: 1,
             time: 0.0,
-            hide_counters: false,
+            hide_overlay: false,
             persistant_contacts: HashMap::new(),
             font: Font::default(),
             running: RunMode::Running,
@@ -94,12 +94,12 @@ impl Testbed {
         self.nsteps = nsteps
     }
 
-    pub fn hide_performance_counters(&mut self) {
-        self.hide_counters = true;
+    pub fn hide_overlay(&mut self) {
+        self.hide_overlay = true;
     }
 
-    pub fn show_performance_counters(&mut self) {
-        self.hide_counters = false;
+    pub fn show_overlay(&mut self) {
+        self.hide_overlay = false;
     }
 
     pub fn set_world(&mut self, world: World<f32>) {
@@ -193,7 +193,7 @@ impl State for Testbed {
     fn step(&mut self, window: &mut Window) {
         for mut event in window.events().iter() {
             match event.value {
-                WindowEvent::Key(Key::T, Action::Release, _) => {
+                WindowEvent::Key(Key::P, Action::Release, _) => {
                     if self.running == RunMode::Stop {
                         self.running = RunMode::Running;
                     } else {
@@ -201,6 +201,7 @@ impl State for Testbed {
                     }
                 }
                 WindowEvent::Key(Key::S, Action::Release, _) => self.running = RunMode::Step,
+                WindowEvent::Key(Key::O, Action::Release, _) => self.hide_overlay = !self.hide_overlay,
                 _ => {}
             }
         }
@@ -214,12 +215,6 @@ impl State for Testbed {
 
                 let mut world = self.world.get_mut();
                 world.step();
-                if !self.hide_counters {
-                    #[cfg(not(feature = "log"))]
-                    println!("{}", world.performance_counters());
-                    #[cfg(feature = "log")]
-                    debug!("{}", world.performance_counters());
-                }
                 self.time += world.timestep();
             }
 
@@ -232,23 +227,25 @@ impl State for Testbed {
 
         let color = Point3::new(0.0, 0.0, 0.0);
 
-        if true {
-            //running != RunMode::Stop {
+        if !self.hide_overlay {
             window.draw_text(
                 &format!(
-                    "Simulation time: {:.*}sec.",
-                    4,
-                    self.world.get().performance_counters().step_time()
+                    "Physics: {:.*} fps",
+                    0,
+                    1.0 / self.world.get().performance_counters().step_time()
                 )[..],
                 &Point2::origin(),
-                60.0,
+                40.0,
                 &self.font,
                 &color,
             );
-        } else {
-            window.draw_text("Paused", &Point2::origin(), 60.0, &self.font, &color);
+        
+            window.draw_text(CONTROLS, &Point2::new(0.0, 75.0), 40.0, &self.font, &color);
+
+            if self.running == RunMode::Stop {
+                window.draw_text("Paused", &Point2::new(0.0, 400.0), 40.0, &self.font, &color);
+            }
         }
-        window.draw_text(CONTROLS, &Point2::new(0.0, 75.0), 40.0, &self.font, &color);
     }
 }
 
@@ -256,5 +253,7 @@ const CONTROLS: &str = "Controls:
     Left click + drag: rotate the camera.
     Right click + drag: pan the camera.
     Mouse wheel: zoom in/zoom out.
-    T: pause/resume simulation.
-    S: step simulation.";
+    P: pause/resume simulation.
+    S: step simulation.
+    O: hide this overlay
+";
