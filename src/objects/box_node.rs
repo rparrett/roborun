@@ -1,9 +1,9 @@
+use super::node::update_scene_node;
 use kiss3d::scene::SceneNode;
 use kiss3d::window;
 use na::{Isometry3, Point3};
 use nphysics3d::object::ColliderHandle;
 use nphysics3d::world::World;
-use super::node::update_scene_node;
 
 pub struct Box {
     color: Point3<f32>,

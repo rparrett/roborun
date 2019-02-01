@@ -1,7 +1,3 @@
-use kiss3d::scene::SceneNode;
-use na::{Isometry3, Point3};
-use nphysics3d::object::ColliderHandle;
-use nphysics3d::world::World;
 use super::ball::Ball;
 use super::box_node::Box;
 use super::cone::Cone;
@@ -9,6 +5,10 @@ use super::convex::Convex;
 use super::cylinder::Cylinder;
 use super::mesh::Mesh;
 use super::plane::Plane;
+use kiss3d::scene::SceneNode;
+use na::{Isometry3, Point3};
+use nphysics3d::object::ColliderHandle;
+use nphysics3d::world::World;
 
 pub enum Node {
     Plane(Plane),

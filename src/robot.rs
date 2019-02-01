@@ -1,11 +1,11 @@
-use na::{Isometry3, Point3, Vector3, Unit};
+use super::COLLIDER_MARGIN;
+use crate::actuator::Actuator;
+use na::{Isometry3, Point3, Unit, Vector3};
 use ncollide3d::shape::{Cuboid, ShapeHandle};
-use nphysics3d::joint::{RevoluteJoint, FreeJoint};
+use nphysics3d::joint::{FreeJoint, RevoluteJoint};
 use nphysics3d::object::{BodyHandle, Material};
 use nphysics3d::volumetric::Volumetric;
 use nphysics3d::world::World;
-use super::COLLIDER_MARGIN;
-use crate::actuator::Actuator;
 
 pub struct Robot {
     pub body: BodyHandle,
@@ -62,7 +62,8 @@ impl Robot {
         let leg_b_shape = ShapeHandle::new(Cuboid::new(Vector3::new(1.0, 4.0, 1.0)));
         let leg_b_com = leg_b_shape.center_of_mass();
         let leg_b_inertia = leg_b_shape.inertia(1.0);
-        let leg_b_joint = RevoluteJoint::new(Unit::new_normalize(Vector3::new(0.0, 0.0, -1.0)), 0.0);
+        let leg_b_joint =
+            RevoluteJoint::new(Unit::new_normalize(Vector3::new(0.0, 0.0, -1.0)), 0.0);
         let leg_b_handle = world.add_multibody_link(
             body_handle,
             leg_b_joint,
@@ -106,7 +107,8 @@ impl Robot {
         let leg_d_shape = ShapeHandle::new(Cuboid::new(Vector3::new(1.0, 4.0, 1.0)));
         let leg_d_com = leg_d_shape.center_of_mass();
         let leg_d_inertia = leg_d_shape.inertia(1.0);
-        let leg_d_joint = RevoluteJoint::new(Unit::new_normalize(Vector3::new(-1.0, 0.0, 0.0)), 0.0);
+        let leg_d_joint =
+            RevoluteJoint::new(Unit::new_normalize(Vector3::new(-1.0, 0.0, 0.0)), 0.0);
         let leg_d_handle = world.add_multibody_link(
             body_handle,
             leg_d_joint,
@@ -125,7 +127,7 @@ impl Robot {
         let mut actuator_d = Actuator::new(leg_d_handle);
         actuator_d.set_name("d");
 
-        let mut actuators =  vec![actuator_a, actuator_b, actuator_c, actuator_d];
+        let mut actuators = vec![actuator_a, actuator_b, actuator_c, actuator_d];
 
         for a in actuators.iter_mut() {
             a.set_max_angle(0.1);
@@ -137,7 +139,7 @@ impl Robot {
 
         Robot {
             body: body_handle,
-            actuators: actuators 
+            actuators: actuators,
         }
     }
 
@@ -149,17 +151,20 @@ impl Robot {
         // probably not ideal.
 
         if let Some(mut b) = world.multibody_link(self.body) {
-           let p = b.position();
-           let t = p.translation;
+            let p = b.position();
+            let t = p.translation;
 
-           let d = nalgebra::distance(&Point3::new(t.vector[0], 0.0, t.vector[2]), &Point3::new(0.0, 0.0, 0.0));
+            let d = nalgebra::distance(
+                &Point3::new(t.vector[0], 0.0, t.vector[2]),
+                &Point3::new(0.0, 0.0, 0.0),
+            );
 
-           let up = p.rotation * Vector3::new(0.0, 1.0, 0.0);
-           if up[1] < 0.0 {
-               return 0.0;
-           }
+            let up = p.rotation * Vector3::new(0.0, 1.0, 0.0);
+            if up[1] < 0.0 {
+                return 0.0;
+            }
 
-           return d;
+            return d;
         }
 
         0.0

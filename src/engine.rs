@@ -1,3 +1,9 @@
+use crate::objects::ball::Ball;
+use crate::objects::box_node::Box;
+use crate::objects::convex::Convex;
+use crate::objects::mesh::Mesh;
+use crate::objects::node::Node;
+use crate::objects::plane::Plane;
 use kiss3d::camera::{ArcBall, Camera, FirstPerson};
 use kiss3d::scene::SceneNode;
 use kiss3d::window::Window;
@@ -7,12 +13,6 @@ use ncollide3d::shape::{self, Compound, ConvexHull, Cuboid, Shape, TriMesh};
 use ncollide3d::transformation;
 use nphysics3d::object::{Body, BodyHandle, ColliderHandle};
 use nphysics3d::world::World;
-use crate::objects::ball::Ball;
-use crate::objects::box_node::Box;
-use crate::objects::convex::Convex;
-use crate::objects::mesh::Mesh;
-use crate::objects::node::Node;
-use crate::objects::plane::Plane;
 use rand::{Rng, SeedableRng, XorShiftRng};
 use std::collections::HashMap;
 

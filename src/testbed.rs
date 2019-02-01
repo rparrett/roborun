@@ -7,6 +7,7 @@ use std::rc::Rc;
 use std::sync::{Arc, RwLock};
 
 use crate::engine::GraphicsManager;
+use crate::world_owner::WorldOwner;
 use kiss3d::camera::Camera;
 use kiss3d::event::{Action, Key, Modifiers, WindowEvent};
 use kiss3d::light::Light;
@@ -22,7 +23,6 @@ use ncollide3d::world::CollisionGroups;
 use nphysics3d::joint::{ConstraintHandle, MouseConstraint};
 use nphysics3d::object::{BodyHandle, ColliderHandle};
 use nphysics3d::world::World;
-use crate::world_owner::WorldOwner;
 
 #[derive(PartialEq)]
 enum RunMode {
@@ -164,7 +164,9 @@ impl State for Testbed {
                     }
                 }
                 WindowEvent::Key(Key::S, Action::Release, _) => self.running = RunMode::Step,
-                WindowEvent::Key(Key::O, Action::Release, _) => self.hide_overlay = !self.hide_overlay,
+                WindowEvent::Key(Key::O, Action::Release, _) => {
+                    self.hide_overlay = !self.hide_overlay
+                }
                 _ => {}
             }
         }
@@ -202,7 +204,7 @@ impl State for Testbed {
                 &self.font,
                 &color,
             );
-        
+
             window.draw_text(CONTROLS, &Point2::new(0.0, 75.0), 40.0, &self.font, &color);
 
             if self.running == RunMode::Stop {

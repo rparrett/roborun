@@ -1,3 +1,4 @@
+use super::node::update_scene_node;
 use kiss3d::resource;
 use kiss3d::scene::SceneNode;
 use kiss3d::window::Window;
@@ -6,7 +7,6 @@ use nphysics3d::object::ColliderHandle;
 use nphysics3d::world::World;
 use std::cell::RefCell;
 use std::rc::Rc;
-use super::node::update_scene_node;
 
 pub struct Mesh {
     color: Point3<f32>,

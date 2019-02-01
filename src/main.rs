@@ -1,21 +1,24 @@
 #[macro_use]
 extern crate stdweb;
 
+extern crate kiss3d;
 extern crate nalgebra as na;
 extern crate ncollide3d;
 extern crate nphysics3d;
 extern crate num_traits as num;
-extern crate kiss3d;
 extern crate rand;
 extern crate time;
 
-mod testbed;
-mod world_owner;
+mod actuator;
 mod engine;
 mod objects;
 mod robot;
-mod actuator;
+mod testbed;
+mod world_owner;
 
+use crate::engine::GraphicsManager;
+use crate::testbed::Testbed;
+use crate::world_owner::WorldOwner;
 use na::{Isometry3, Point3, Real, Translation3, Unit, Vector2, Vector3};
 use ncollide3d::shape::{Ball, Cuboid, Plane, ShapeHandle};
 use nphysics3d::joint::{
@@ -25,12 +28,9 @@ use nphysics3d::joint::{
 use nphysics3d::object::{BodyHandle, Material};
 use nphysics3d::volumetric::Volumetric;
 use nphysics3d::world::World;
-use crate::testbed::Testbed;
-use crate::world_owner::WorldOwner;
-use crate::engine::GraphicsManager;
+use robot::Robot;
 use std::cell::RefCell;
 use std::f32::consts::PI;
-use robot::Robot;
 
 const COLLIDER_MARGIN: f32 = 0.01;
 
@@ -82,7 +82,7 @@ fn main() {
         let mut first_tick = first_tick.borrow_mut();
 
         let mut robot = robot.borrow_mut();
-        
+
         if *first_tick || time > *last_tick + 2.0 {
             for a in robot.actuators.iter_mut() {
                 if *on {
@@ -95,11 +95,11 @@ fn main() {
             *on = !*on;
             *last_tick = time;
             *first_tick = false;
-            
+
             let f = robot.fitness(&w);
             console!(log, format!("fitness: {}", f));
         }
-        
+
         for a in robot.actuators.iter_mut() {
             a.step(&mut w);
         }
