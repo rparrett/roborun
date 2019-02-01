@@ -51,7 +51,7 @@ fn main() {
         ground_shape,
         BodyHandle::ground(),
         ground_pos,
-        Material::default(),
+        Material::new(0.0, 0.9), // ground is a bit sticky
     );
 
     let mut robot = Robot::spawn(&mut world);
