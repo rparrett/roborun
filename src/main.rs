@@ -4,7 +4,15 @@ extern crate stdweb;
 extern crate nalgebra as na;
 extern crate ncollide3d;
 extern crate nphysics3d;
-extern crate nphysics_testbed3d;
+extern crate num_traits as num;
+extern crate kiss3d;
+extern crate rand;
+extern crate time;
+
+mod testbed;
+mod world_owner;
+mod engine;
+mod objects;
 
 use na::{Isometry3, Point3, Real, Translation3, Unit, Vector2, Vector3};
 use ncollide3d::shape::{Ball, Cuboid, Plane, ShapeHandle};
@@ -15,7 +23,9 @@ use nphysics3d::joint::{
 use nphysics3d::object::{BodyHandle, Material};
 use nphysics3d::volumetric::Volumetric;
 use nphysics3d::world::World;
-use nphysics_testbed3d::Testbed;
+use crate::testbed::Testbed;
+use crate::world_owner::WorldOwner;
+use crate::engine::GraphicsManager;
 use std::cell::RefCell;
 use std::f32::consts::PI;
 
@@ -218,9 +228,9 @@ fn main() {
             let dof = j.joint_mut().downcast_mut::<RevoluteJoint<f32>>().unwrap();
 
             if *o {
-                dof.set_desired_angular_motor_velocity(-1.0);
+                dof.set_desired_angular_motor_velocity(-0.5);
             } else {
-                dof.set_desired_angular_motor_velocity(1.0);
+                dof.set_desired_angular_motor_velocity(0.5);
             }
 
             dof.enable_angular_motor();
