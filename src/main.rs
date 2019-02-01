@@ -95,6 +95,9 @@ fn main() {
             *on = !*on;
             *last_tick = time;
             *first_tick = false;
+            
+            let f = robot.fitness(&w);
+            console!(log, format!("fitness: {}", f));
         }
         
         for a in robot.actuators.iter_mut() {

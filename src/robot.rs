@@ -140,4 +140,28 @@ impl Robot {
             actuators: actuators 
         }
     }
+
+    pub fn fitness(&self, world: &World<f32>) -> f32 {
+        // x/y distance from the origin, unless we've tipped onto our side or gone upside down.
+        //
+        // evaluating that second condition at this time means that a robot is allowed to
+        // somersault, as long as it's right-side-up when the fitness is evaluated. that's
+        // probably not ideal.
+
+        if let Some(mut b) = world.multibody_link(self.body) {
+           let p = b.position();
+           let t = p.translation;
+
+           let d = nalgebra::distance(&Point3::new(t.vector[0], 0.0, t.vector[2]), &Point3::new(0.0, 0.0, 0.0));
+
+           let up = p.rotation * Vector3::new(0.0, 1.0, 0.0);
+           if up[1] < 0.0 {
+               return 0.0;
+           }
+
+           return d;
+        }
+
+        0.0
+    }
 }
