@@ -15,8 +15,10 @@ mod objects;
 mod robot;
 mod testbed;
 mod world_owner;
+mod individual;
 
 use crate::engine::GraphicsManager;
+use crate::individual::Individual;
 use crate::testbed::Testbed;
 use crate::world_owner::WorldOwner;
 use na::{Isometry3, Point3, Vector3};
@@ -49,7 +51,8 @@ fn main() {
         Material::new(0.0, 0.9), // ground is a bit sticky
     );
 
-    let mut robot = Robot::spawn(&mut world);
+    let individual = Individual::random(3, 3 * 12);
+    let mut robot = Robot::from_individual(individual, &mut world);
 
     /*
      * Set up the testbed.
@@ -79,9 +82,6 @@ fn main() {
         let mut robot = robot.borrow_mut();
 
         robot.step(&mut w, elapsed);
-
-        let f = robot.fitness(&w);
-        console!(log, format!("fitness: {}", f));
     });
 
     testbed.look_at(Point3::new(30.0, -2.0, 0.0), Point3::new(0.0, -2.0, 0.0));

@@ -1,12 +1,15 @@
 use super::COLLIDER_MARGIN;
 use crate::actuator::Actuator;
+use crate::individual::Individual;
 use na::{Isometry3, Point3, Unit, Vector3};
 use ncollide3d::shape::{Cuboid, ShapeHandle};
 use nphysics3d::joint::{FreeJoint, RevoluteJoint};
 use nphysics3d::object::{BodyHandle, Material};
 use nphysics3d::volumetric::Volumetric;
 use nphysics3d::world::World;
+use itertools::Itertools;
 
+#[derive(Debug)]
 pub struct Actuation {
     actuator: usize,
     time: f32,
@@ -204,6 +207,24 @@ impl Robot {
             ],
             current_actuation: 0
         }
+    }
+
+    pub fn from_individual(individual: Individual, world: &mut World<f32>) -> Robot {
+        let mut robot = Robot::spawn(world);
+
+        robot.actuations.clear();
+
+        for (a, b, c) in individual.genes.iter().tuples::<(_, _, _)>() {
+            robot.actuations.push(
+                Actuation::new(
+                    (a * robot.actuators.len() as f32) as usize,
+                    b * 5.0,
+                    c * -1.1 + 0.1
+                )
+            );
+        }
+
+        robot
     }
 
     pub fn step(&mut self, world: &mut World<f32>, elapsed: f32) {

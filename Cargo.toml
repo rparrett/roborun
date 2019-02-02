@@ -12,4 +12,5 @@ nphysics3d = "0.9"
 num-traits = "0.2"
 kiss3d     = "0.17"
 time       = "0.1"
-rand       = "0.5"
+rand       = { version = "0.5", features = ["stdweb"] }
+itertools  = "0.8"
