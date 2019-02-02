@@ -40,7 +40,7 @@ fn main() {
      * Create a ground.
      */
     let ground_shape = ShapeHandle::new(Cuboid::new(Vector3::new(50.0, 50.0, 50.0)));
-    let ground_pos = Isometry3::new(Vector3::y() * -60.5, na::zero());
+    let ground_pos = Isometry3::new(Vector3::y() * -61.5, na::zero());
     world.add_collider(
         COLLIDER_MARGIN,
         ground_shape,
@@ -70,34 +70,18 @@ fn main() {
     let robot = RefCell::new(robot);
 
     testbed.add_callback(move |world_owner, _, time| {
-        let mut w = world_owner.get_mut();
-
         let mut last_tick = last_tick.borrow_mut();
-        let mut on = on.borrow_mut();
-        let mut first_tick = first_tick.borrow_mut();
+        let elapsed = time - *last_tick;
+        *last_tick = time.clone();
+
+        let mut w = world_owner.get_mut();
 
         let mut robot = robot.borrow_mut();
 
-        if *first_tick || time > *last_tick + 2.0 {
-            for a in robot.actuators.iter_mut() {
-                if *on {
-                    a.set_position(0.1);
-                } else {
-                    a.set_position(-1.0);
-                }
-            }
+        robot.step(&mut w, elapsed);
 
-            *on = !*on;
-            *last_tick = time;
-            *first_tick = false;
-
-            let f = robot.fitness(&w);
-            console!(log, format!("fitness: {}", f));
-        }
-
-        for a in robot.actuators.iter_mut() {
-            a.step(&mut w);
-        }
+        let f = robot.fitness(&w);
+        console!(log, format!("fitness: {}", f));
     });
 
     testbed.look_at(Point3::new(30.0, -2.0, 0.0), Point3::new(0.0, -2.0, 0.0));

@@ -7,9 +7,28 @@ use nphysics3d::object::{BodyHandle, Material};
 use nphysics3d::volumetric::Volumetric;
 use nphysics3d::world::World;
 
+pub struct Actuation {
+    actuator: usize,
+    time: f32,
+    position: f32
+}
+
+impl Actuation {
+    pub fn new(actuator: usize, time: f32, position: f32) -> Actuation {
+        Actuation {
+            actuator: actuator,
+            time: time,
+            position: position
+        }
+    }
+}
+
 pub struct Robot {
     pub body: BodyHandle,
-    pub actuators: Vec<Actuator>,
+    actuators: Vec<Actuator>,
+    time: f32,
+    actuations: Vec<Actuation>,
+    current_actuation: usize
 }
 
 impl Robot {
@@ -140,6 +159,83 @@ impl Robot {
         Robot {
             body: body_handle,
             actuators: actuators,
+            time: 0.0,
+            actuations: vec![
+                Actuation::new(
+                    0,
+                    1.0,
+                    -1.0,
+                ),
+                Actuation::new(
+                    1,
+                    1.0,
+                    -1.0,
+                ),
+                Actuation::new(
+                    2,
+                    1.0,
+                    -1.0,
+                ),
+                Actuation::new(
+                    3,
+                    1.0,
+                    -1.0,
+                ),
+                Actuation::new(
+                    0,
+                    2.5,
+                    0.1,
+                ),
+                Actuation::new(
+                    1,
+                    2.5,
+                    0.1,
+                ),
+                Actuation::new(
+                    2,
+                    2.5,
+                    0.1,
+                ),
+                Actuation::new(
+                    3,
+                    2.5,
+                    0.1,
+                ),
+            ],
+            current_actuation: 0
+        }
+    }
+
+    pub fn step(&mut self, world: &mut World<f32>, elapsed: f32) {
+        self.time += elapsed;
+
+        // TODO this seems horrendously ugly
+        
+        loop { 
+            if let Some(a) = self.actuations.get(self.current_actuation) {
+                if self.time < a.time {
+                    break;
+                }
+
+                if let Some(ab) = self.actuators.get_mut(a.actuator) {
+                    ab.set_position(a.position);
+                } else {
+                    break;
+                }
+            } else {
+                break;
+            }
+
+            self.current_actuation += 1;
+            if self.current_actuation > self.actuations.len() - 1 {
+                self.current_actuation = 0;
+                self.time = 0.0;
+                break;
+            }
+        }
+
+        for a in self.actuators.iter_mut() {
+            a.step(world);
         }
     }
 
