@@ -19,18 +19,13 @@ mod world_owner;
 use crate::engine::GraphicsManager;
 use crate::testbed::Testbed;
 use crate::world_owner::WorldOwner;
-use na::{Isometry3, Point3, Real, Translation3, Unit, Vector2, Vector3};
-use ncollide3d::shape::{Ball, Cuboid, Plane, ShapeHandle};
-use nphysics3d::joint::{
-    BallJoint, CartesianJoint, CylindricalJoint, FixedJoint, FreeJoint, HelicalJoint, Joint,
-    PinSlotJoint, PlanarJoint, PrismaticJoint, RectangularJoint, RevoluteJoint, UniversalJoint,
-};
+use na::{Isometry3, Point3, Vector3};
+use ncollide3d::shape::{Cuboid, ShapeHandle};
 use nphysics3d::object::{BodyHandle, Material};
 use nphysics3d::volumetric::Volumetric;
 use nphysics3d::world::World;
 use robot::Robot;
 use std::cell::RefCell;
-use std::f32::consts::PI;
 
 const COLLIDER_MARGIN: f32 = 0.01;
 
