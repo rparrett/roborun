@@ -11,11 +11,11 @@ extern crate time;
 
 mod actuator;
 mod engine;
+mod individual;
 mod objects;
 mod robot;
 mod testbed;
 mod world_owner;
-mod individual;
 
 use crate::engine::GraphicsManager;
 use crate::individual::Individual;

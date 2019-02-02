@@ -1,4 +1,4 @@
-use nphysics3d::joint::{RevoluteJoint};
+use nphysics3d::joint::RevoluteJoint;
 use nphysics3d::object::BodyHandle;
 use nphysics3d::world::World;
 

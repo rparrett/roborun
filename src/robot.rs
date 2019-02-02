@@ -1,19 +1,19 @@
 use super::COLLIDER_MARGIN;
 use crate::actuator::Actuator;
 use crate::individual::Individual;
+use itertools::Itertools;
 use na::{Isometry3, Point3, Unit, Vector3};
 use ncollide3d::shape::{Cuboid, ShapeHandle};
 use nphysics3d::joint::{FreeJoint, RevoluteJoint};
 use nphysics3d::object::{BodyHandle, Material};
 use nphysics3d::volumetric::Volumetric;
 use nphysics3d::world::World;
-use itertools::Itertools;
 
 #[derive(Debug)]
 pub struct Actuation {
     actuator: usize,
     time: f32,
-    position: f32
+    position: f32,
 }
 
 impl Actuation {
@@ -21,7 +21,7 @@ impl Actuation {
         Actuation {
             actuator: actuator,
             time: time,
-            position: position
+            position: position,
         }
     }
 }
@@ -31,7 +31,7 @@ pub struct Robot {
     actuators: Vec<Actuator>,
     time: f32,
     actuations: Vec<Actuation>,
-    current_actuation: usize
+    current_actuation: usize,
 }
 
 impl Robot {
@@ -164,48 +164,16 @@ impl Robot {
             actuators: actuators,
             time: 0.0,
             actuations: vec![
-                Actuation::new(
-                    0,
-                    1.0,
-                    -1.0,
-                ),
-                Actuation::new(
-                    1,
-                    1.0,
-                    -1.0,
-                ),
-                Actuation::new(
-                    2,
-                    1.0,
-                    -1.0,
-                ),
-                Actuation::new(
-                    3,
-                    1.0,
-                    -1.0,
-                ),
-                Actuation::new(
-                    0,
-                    2.5,
-                    0.1,
-                ),
-                Actuation::new(
-                    1,
-                    2.5,
-                    0.1,
-                ),
-                Actuation::new(
-                    2,
-                    2.5,
-                    0.1,
-                ),
-                Actuation::new(
-                    3,
-                    2.5,
-                    0.1,
-                ),
+                Actuation::new(0, 1.0, -1.0),
+                Actuation::new(1, 1.0, -1.0),
+                Actuation::new(2, 1.0, -1.0),
+                Actuation::new(3, 1.0, -1.0),
+                Actuation::new(0, 2.5, 0.1),
+                Actuation::new(1, 2.5, 0.1),
+                Actuation::new(2, 2.5, 0.1),
+                Actuation::new(3, 2.5, 0.1),
             ],
-            current_actuation: 0
+            current_actuation: 0,
         }
     }
 
@@ -215,13 +183,11 @@ impl Robot {
         robot.actuations.clear();
 
         for (a, b, c) in individual.genes.iter().tuples::<(_, _, _)>() {
-            robot.actuations.push(
-                Actuation::new(
-                    (a * robot.actuators.len() as f32) as usize,
-                    b * 5.0,
-                    c * -1.1 + 0.1
-                )
-            );
+            robot.actuations.push(Actuation::new(
+                (a * robot.actuators.len() as f32) as usize,
+                b * 5.0,
+                c * -1.1 + 0.1,
+            ));
         }
 
         robot
@@ -231,8 +197,8 @@ impl Robot {
         self.time += elapsed;
 
         // TODO this seems horrendously ugly
-        
-        loop { 
+
+        loop {
             if let Some(a) = self.actuations.get(self.current_actuation) {
                 if self.time < a.time {
                     break;

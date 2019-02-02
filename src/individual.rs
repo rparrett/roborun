@@ -1,7 +1,7 @@
-use rand::{Rng, OsRng};
+use rand::{OsRng, Rng};
 
 pub struct Individual {
-    pub genes: Vec<f32>
+    pub genes: Vec<f32>,
 }
 
 impl Individual {
@@ -17,8 +17,6 @@ impl Individual {
             genes.push(gene);
         }
 
-        Individual {
-            genes: genes
-        }
+        Individual { genes: genes }
     }
 }
