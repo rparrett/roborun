@@ -64,12 +64,6 @@ fn main() {
     let last_tick = 0.0;
     let last_tick = RefCell::new(last_tick);
 
-    let on = false;
-    let on = RefCell::new(on);
-
-    let first_tick = true;
-    let first_tick = RefCell::new(first_tick);
-
     let robot = RefCell::new(robot);
 
     testbed.add_callback(move |world_owner, _, time| {
