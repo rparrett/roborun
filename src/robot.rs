@@ -39,7 +39,7 @@ impl Robot {
         let max_leg_torque = 160.0;
 
         let body_shape = ShapeHandle::new(Cuboid::new(Vector3::new(4.0, 1.0, 4.0)));
-        let body_pos = Isometry3::new(Vector3::y() * -1.0, na::zero());
+        let body_pos = Isometry3::new(Vector3::y() * 11.0, na::zero());
         let body_com = body_shape.center_of_mass();
         let body_inertia = body_shape.inertia(1.0);
         let body_joint = FreeJoint::new(body_pos);
@@ -177,7 +177,7 @@ impl Robot {
         }
     }
 
-    pub fn from_individual(individual: Individual, world: &mut World<f32>) -> Robot {
+    pub fn from_individual(individual: &Individual, world: &mut World<f32>) -> Robot {
         let mut robot = Robot::spawn(world);
 
         robot.actuations.clear();
@@ -232,8 +232,10 @@ impl Robot {
         // evaluating that second condition at this time means that a robot is allowed to
         // somersault, as long as it's right-side-up when the fitness is evaluated. that's
         // probably not ideal.
+        //
+        // maybe it would be good to break ties with genome size or something
 
-        if let Some(mut b) = world.multibody_link(self.body) {
+        if let Some(b) = world.multibody_link(self.body) {
             let p = b.position();
             let t = p.translation;
 

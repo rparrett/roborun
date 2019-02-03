@@ -4,9 +4,8 @@
 
 TODO
 
-Monitor joint position and adjust velocity toward a commanded position
-Run random sequences of commanded joint positions and pauses
-Tear down world or tear down robot and replace with a new robot
-Determine distance from start and right-side-up-ness for fitness
-Do some sort of optimization (GA are fun) for fitness
+Simultaneously display an individual robot while simulating a larger population
+Show robot ghost from previous generation in a differet color / collision group
+Show user fun data
+Add texture or something to ground so movement is more obvious
 Add additional interesting robot variants
