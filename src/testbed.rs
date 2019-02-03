@@ -51,7 +51,7 @@ impl Testbed {
         let graphics = GraphicsManager::new();
         let world = World::new();
 
-        let mut window = Box::new(Window::new("nphysics: 3d demo"));
+        let mut window = Box::new(Window::new("roborun"));
         window.set_background_color(0.9, 0.9, 0.9);
         window.set_framerate_limit(Some(60));
         window.set_light(Light::StickToCamera);
