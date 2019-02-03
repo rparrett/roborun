@@ -102,6 +102,6 @@ fn main() {
         robot.step(&mut w, t);
     });
 
-    testbed.look_at(Point3::new(30.0, -2.0, 0.0), Point3::new(0.0, 2.0, 0.0));
+    testbed.look_at(Point3::new(60.0, 40.0, 30.0), Point3::new(0.0, 2.0, 0.0));
     testbed.run();
 }
