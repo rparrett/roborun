@@ -1,5 +1,6 @@
 use rand::rngs::OsRng;
 use rand::Rng;
+use rand::seq::IteratorRandom;
 
 #[derive(Debug, Clone)]
 pub struct Individual {
@@ -31,6 +32,9 @@ impl Individual {
 
         // TODO: magic
         let mutation_magnitude = 0.2;
+        let remove_chance = 0.2;
+        let add_chance = 0.2;
+        let alignment = 3;
 
         let i = rng.gen_range(0, self.genes.len());
 
@@ -43,14 +47,21 @@ impl Individual {
             self.genes[i] = 0.0;
         }
 
-        // TODO: magic
-        if rng.gen_range(0.0, 1.0) > 0.8 {
-            self.genes.remove(rng.gen_range(0, self.genes.len()));
+        if rng.gen_range(0.0, 1.0) < remove_chance {
+            let i = (0..self.genes.len()-alignment)
+                .step_by(alignment)
+                .choose(&mut rng)
+                .unwrap();
+
+            for _ in 0..alignment {
+                self.genes.remove(i);
+            }
         }
 
-        // TODO: magic
-        if rng.gen_range(0.0, 1.0) > 0.8 {
-            self.genes.push(rng.gen_range(0.0, 1.0));
+        if rng.gen_range(0.0, 1.0) < add_chance {
+            for _ in 0..alignment {
+                self.genes.push(rng.gen_range(0.0, 1.0));
+            }
         }
 
         self.fitness = 0.0;

@@ -60,11 +60,11 @@ fn make_world() -> World<f32> {
 }
 
 fn main() {
-    let mut population = Population::random(50);
+    let mut population = Population::random(100);
     evaluate_population(&mut population);
     console!(log, format!("gen {}: {}", 1, population.best().fitness));
 
-    for gen in 0..100 {
+    for gen in 0..10 {
         population.cull();
         evaluate_population(&mut population);
         console!(
