@@ -70,14 +70,16 @@ impl Individual {
     pub fn breed(parent_a: &Individual, parent_b: &Individual) -> Individual {
         let mut rng = OsRng::new().unwrap();
 
+        let alignment = 3;
+
         let mut child = (*parent_a).clone();
         child.fitness = 0.0;
 
-        let take_half = parent_b.genes.len() / 2;
-        let take_start = rng.gen_range(0, take_half);
+        let take_half = round_down_to_multiple(parent_b.genes.len() / 2, alignment);
+        let take_start = round_down_to_multiple(rng.gen_range(0, take_half), alignment);
 
-        let give_half = child.genes.len() / 2;
-        let give_start = rng.gen_range(0, give_half);
+        let give_half = round_down_to_multiple(child.genes.len() / 2, alignment);
+        let give_start = round_down_to_multiple(rng.gen_range(0, give_half), alignment);
 
         child.genes.splice(
             give_start..(give_start + give_half),
@@ -92,4 +94,13 @@ impl Individual {
 
         child
     }
+}
+
+fn round_down_to_multiple(num: usize, multiple: usize) -> usize {
+    let rem = num % multiple;
+    if rem != 0 {
+        return num - rem;
+    }
+
+    num
 }
