@@ -5,11 +5,11 @@ use rand::Rng;
 
 pub struct Population {
     pub individuals: Vec<Individual>,
-    pub num: u32,
+    pub num: usize,
 }
 
 impl Population {
-    pub fn random(num: u32) -> Population {
+    pub fn random(num: usize) -> Population {
         let mut individuals: Vec<Individual> = Vec::new();
         for _ in 0..num {
             individuals.push(Individual::random(3, 3 * 16)); // TODO magic
@@ -32,33 +32,56 @@ impl Population {
         let mut rng = OsRng::new().unwrap();
 
         // TODO magic
-        let keep = (0.1 * self.num as f32) as u32;
-        let randos = (self.num - keep) / 2;
-        let spawn = self.num - keep - randos;
+        let selection_ratio = 0.2;
+        let crossover_ratio = 0.6;
+        let crossover_clone_ratio = 0.5;
+        let mutation_rate = 0.05;
+
+        let keep = (selection_ratio * self.num as f32) as usize;
+        let breed = (crossover_ratio * self.num as f32) as usize;
+        let fill = if breed + keep > self.num {
+            0
+        } else {
+            self.num - breed - keep
+        };
 
         self.individuals
             .sort_by(|a, b| b.fitness.partial_cmp(&a.fitness).unwrap());
-        self.individuals.truncate(keep as usize);
+        self.individuals.truncate(keep);
+        
+        for _ in 0..breed {
+            // crossover or just clone and mutate
 
-        for i in self.individuals.iter_mut().skip(1) {
-            i.mutate();
+            if rng.gen_range(0.0, 1.0) > crossover_clone_ratio {
+                let parents = self
+                    .individuals
+                    .iter()
+                    .by_ref()
+                    .take(keep as usize)
+                    .choose_multiple(&mut rng, 2);
+                let child = Individual::breed(parents[0], parents[1]);
+                self.individuals.push(child);
+            } else {
+                let mut child = self
+                    .individuals
+                    .iter()
+                    .take(keep as usize)
+                    .choose(&mut rng)
+                    .unwrap()
+                    .clone();
+                child.mutate();
+                self.individuals.push(child);
+            }
         }
 
-        for _ in 0..randos {
-            // TODO magic
+        for _ in 0..fill {
             self.individuals.push(Individual::random(3, 3 * 16)); // TODO magic
         }
 
-        for _ in 0..spawn {
-            // TODO magic
-            let parents = self
-                .individuals
-                .iter()
-                .by_ref()
-                .take(keep as usize)
-                .choose_multiple(&mut rng, 2);
-            let child = Individual::breed(parents[0], parents[1]);
-            self.individuals.push(child);
+        for i in 0..keep {
+            if rng.gen_range(0.0, 1.0) < mutation_rate {
+                self.individuals[i].mutate();
+            }
         }
     }
 }

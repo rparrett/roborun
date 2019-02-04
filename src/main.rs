@@ -64,7 +64,7 @@ fn main() {
     evaluate_population(&mut population);
     console!(log, format!("gen {}: {}", 1, population.best().fitness));
 
-    for gen in 0..10 {
+    for gen in 0..200 {
         population.cull();
         evaluate_population(&mut population);
         console!(
