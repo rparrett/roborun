@@ -8,6 +8,8 @@ use std::sync::{Arc, RwLock};
 
 use crate::engine::GraphicsManager;
 use crate::world_owner::WorldOwner;
+use crate::crucible::{Crucible, make_world};
+use crate::robot::Robot;
 use kiss3d::camera::Camera;
 use kiss3d::event::{Action, Key, Modifiers, WindowEvent};
 use kiss3d::light::Light;
@@ -97,6 +99,12 @@ pub struct Testbed {
     grabbed_object: Option<BodyPartHandle>,
     grabbed_object_constraint: Option<ConstraintHandle>,
     grabbed_object_plane: (Point3<f32>, Vector3<f32>),
+
+    robot: Option<Robot>,
+
+    crucible: Crucible,
+    showing_gen: usize,
+    reset: bool
 }
 
 type Callbacks = Vec<Box<Fn(&mut WorldOwner, &mut GraphicsManager, f32)>>;
@@ -116,17 +124,21 @@ impl Testbed {
             callbacks: Vec::new(),
             window: Some(window),
             graphics,
-            nsteps: 1,
+            nsteps: 100,
             time: 0.0,
             hide_counters: false,
             persistant_contacts: HashMap::new(),
-            font: Font::default(),
+            font: Font::from_bytes(include_bytes!("../assets/UbuntuMono-Regular.ttf")).unwrap(),
             running: RunMode::Step,
             draw_colls: false,
             cursor_pos: Point2::new(0.0f32, 0.0),
             grabbed_object: None,
             grabbed_object_constraint: None,
             grabbed_object_plane: (Point3::origin(), na::zero()),
+            crucible: Crucible::new(),
+            robot: None,
+            reset: true,
+            showing_gen: 1
         }
     }
 
@@ -151,6 +163,20 @@ impl Testbed {
 
     pub fn show_performance_counters(&mut self) {
         self.hide_counters = false;
+    }
+
+    pub fn running_replace_world(&mut self, world: World<f32>, window: &mut Window) {
+        self.world = Box::new(world);
+
+        let mut world = self.world.get_mut();
+
+        world.enable_performance_counters();
+        self.graphics.clear(window);
+
+        for co in world.colliders() {
+            self.graphics
+                .add(window, co.handle(), &world);
+        }
     }
 
     pub fn set_world(&mut self, world: World<f32>) {
@@ -256,6 +282,14 @@ impl State for Testbed {
     }
 
     fn step(&mut self, window: &mut Window) {
+        if self.reset {
+            let mut world = make_world();
+            self.robot = Some(Robot::from_individual(self.crucible.population.best(), &mut world));
+            self.running_replace_world(world, window);
+            self.time = 0.0;
+            self.reset = false;
+        }
+
         for mut event in window.events().iter() {
             match event.value {
                 //         WindowEvent::MouseButton(MouseButton::Button2, Action::Press, Key::LControl) |
@@ -547,19 +581,34 @@ impl State for Testbed {
         if self.running != RunMode::Stop {
             // let before = time::precise_time_s();
             for _ in 0..self.nsteps {
+                self.crucible.step();
+            }
+
+            {
                 for f in &self.callbacks {
                     f(&mut *self.world, &mut self.graphics, self.time)
                 }
 
                 let mut world = self.world.get_mut();
+                let timestep = world.timestep();
+
+                if let Some(robot) = &mut self.robot {
+                    robot.step(&mut world, timestep);
+                }
                 world.step();
+
                 if !self.hide_counters {
                     #[cfg(not(feature = "log"))]
                     println!("{}", world.performance_counters());
                     #[cfg(feature = "log")]
                     debug!("{}", world.performance_counters());
                 }
-                self.time += world.timestep();
+                self.time += timestep;
+
+                if self.showing_gen != self.crucible.generation {
+                    self.reset = true;
+                    self.showing_gen = self.crucible.generation;
+                }
             }
 
             self.graphics.draw(&self.world.get(), window);
@@ -580,33 +629,32 @@ impl State for Testbed {
 
         let color = Point3::new(0.0, 0.0, 0.0);
 
-        if true {
-            //running != RunMode::Stop {
-            window.draw_text(
-                &format!(
-                    "Simulation time: {:.*}sec.",
-                    4,
-                    self.world.get().performance_counters().step_time()
-                )[..],
-                &Point2::origin(),
-                60.0,
-                &self.font,
-                &color,
-            );
-        } else {
-            window.draw_text("Paused", &Point2::origin(), 60.0, &self.font, &color);
+        window.draw_text(
+            &format!(
+                "Sim time: {:.*}sec. Gen: {} Ind: {} Stp: {}",
+                4,
+                self.world.get().performance_counters().step_time(),
+                self.crucible.generation,
+                self.crucible.individual,
+                self.crucible.step,
+            )[..],
+            &Point2::new(5.0, 5.0),
+            40.0,
+            &self.font,
+            &color,
+        );
+        if self.running != RunMode::Running {
+            window.draw_text("Paused", &Point2::new(5.0, 50.0), 40.0, &self.font, &color);
         }
-        window.draw_text(CONTROLS, &Point2::new(0.0, 75.0), 40.0, &self.font, &color);
+        window.draw_text(CONTROLS, &Point2::new(5.0, 95.0), 40.0, &self.font, &color);
     }
 }
 
-const CONTROLS: &str = "Controls:
-    Ctrl + click + drag: select and move a solid.
-    Left click + drag: rotate the camera.
-    Right click + drag: pan the camera.
-    Mouse wheel: zoom in/zoom out.
-    T: pause/resume simulation.
-    S: step simulation.";
+const CONTROLS: &str = "Left click + drag: rotate the camera.
+Right click + drag: pan the camera.
+Mouse wheel: zoom in/zoom out.
+T: pause/resume simulation.
+S: step simulation.";
 
 fn draw_collisions(
     window: &mut Window,
