@@ -1,12 +1,10 @@
-use super::COLLIDER_MARGIN;
 use crate::actuator::Actuator;
 use crate::individual::Individual;
 use itertools::Itertools;
 use na::{Isometry3, Point3, Unit, Vector3};
 use ncollide3d::shape::{Cuboid, ShapeHandle};
 use nphysics3d::joint::{FreeJoint, RevoluteJoint};
-use nphysics3d::object::{BodyHandle, Material};
-use nphysics3d::volumetric::Volumetric;
+use nphysics3d::object::{Body, BodyHandle, BodyPart, ColliderDesc, MultibodyDesc};
 use nphysics3d::world::World;
 
 #[derive(Debug)]
@@ -36,124 +34,80 @@ pub struct Robot {
 
 impl Robot {
     pub fn spawn(world: &mut World<f32>) -> Robot {
-        let max_leg_torque = 160.0;
+        let mut id: usize = 0;
 
         let body_shape = ShapeHandle::new(Cuboid::new(Vector3::new(4.0, 1.0, 4.0)));
         let body_pos = Isometry3::new(Vector3::y() * 11.0, na::zero());
-        let body_com = body_shape.center_of_mass();
-        let body_inertia = body_shape.inertia(1.0);
         let body_joint = FreeJoint::new(body_pos);
-        let body_handle = world.add_multibody_link(
-            BodyHandle::ground(),
-            body_joint,
-            na::zero(),
-            na::zero(),
-            body_inertia,
-            body_com,
-        );
-        world.add_collider(
-            COLLIDER_MARGIN,
-            body_shape,
-            body_handle,
-            Isometry3::identity(),
-            Material::default(),
-        );
+        let body_collider = ColliderDesc::new(body_shape).density(1.0);
+        let multibody = MultibodyDesc::new(body_joint).collider(&body_collider);
+        let body = multibody.build(world);
+        let body_handle = body.handle();
+        let body_part_handle = body.root().part_handle();
+        id += 1;
 
         let leg_a_shape = ShapeHandle::new(Cuboid::new(Vector3::new(1.0, 4.0, 1.0)));
-        let leg_a_com = leg_a_shape.center_of_mass();
-        let leg_a_inertia = leg_a_shape.inertia(1.0);
+        let leg_a_collider = ColliderDesc::new(leg_a_shape).density(1.0);
         let leg_a_joint = RevoluteJoint::new(Vector3::z_axis(), 0.0);
-        let leg_a_handle = world.add_multibody_link(
-            body_handle,
-            leg_a_joint,
-            Vector3::new(-4.0, -2.0, 0.0),
-            Vector3::new(0.0, 4.0, 0.0),
-            leg_a_inertia,
-            leg_a_com,
-        );
-        world.add_collider(
-            COLLIDER_MARGIN,
-            leg_a_shape,
-            leg_a_handle,
-            Isometry3::identity(),
-            Material::default(),
-        );
-        let mut actuator_a = Actuator::new(leg_a_handle);
-        actuator_a.set_name("a");
+        MultibodyDesc::new(leg_a_joint)
+            .collider(&leg_a_collider)
+            .body_shift(Vector3::new(0.0, 4.0, 0.0))
+            .parent_shift(Vector3::new(4.0, -2.0, 0.0))
+            .build_with_parent(body_part_handle, world)
+            .unwrap()
+            .set_name("leg_a".to_string());
+        let mut actuator_a = Actuator::new(body_handle, id);
+        actuator_a.set_name("leg_a");
+        id += 1;
 
         let leg_b_shape = ShapeHandle::new(Cuboid::new(Vector3::new(1.0, 4.0, 1.0)));
-        let leg_b_com = leg_b_shape.center_of_mass();
-        let leg_b_inertia = leg_b_shape.inertia(1.0);
+        let leg_b_collider = ColliderDesc::new(leg_b_shape).density(1.0);
         let leg_b_joint =
             RevoluteJoint::new(Unit::new_normalize(Vector3::new(0.0, 0.0, -1.0)), 0.0);
-        let leg_b_handle = world.add_multibody_link(
-            body_handle,
-            leg_b_joint,
-            Vector3::new(4.0, -2.0, 0.0),
-            Vector3::new(0.0, 4.0, 0.0),
-            leg_b_inertia,
-            leg_b_com,
-        );
-        world.add_collider(
-            COLLIDER_MARGIN,
-            leg_b_shape,
-            leg_b_handle,
-            Isometry3::identity(),
-            Material::default(),
-        );
-        let mut actuator_b = Actuator::new(leg_b_handle);
-        actuator_b.set_name("b");
+        MultibodyDesc::new(leg_b_joint)
+            .collider(&leg_b_collider)
+            .body_shift(Vector3::new(0.0, 4.0, 0.0))
+            .parent_shift(Vector3::new(-4.0, -2.0, 0.0))
+            .build_with_parent(body_part_handle, world)
+            .unwrap()
+            .set_name("leg_b".to_string());
+        let mut actuator_b = Actuator::new(body_handle, id);
+        actuator_b.set_name("leg_b");
+        id += 1;
 
         let leg_c_shape = ShapeHandle::new(Cuboid::new(Vector3::new(1.0, 4.0, 1.0)));
-        let leg_c_com = leg_c_shape.center_of_mass();
-        let leg_c_inertia = leg_c_shape.inertia(1.0);
-        let leg_c_joint = RevoluteJoint::new(Vector3::x_axis(), 0.0);
-        let leg_c_handle = world.add_multibody_link(
-            body_handle,
-            leg_c_joint,
-            Vector3::new(0.0, -2.0, 4.0),
-            Vector3::new(0.0, 4.0, 0.0),
-            leg_c_inertia,
-            leg_c_com,
-        );
-        world.add_collider(
-            COLLIDER_MARGIN,
-            leg_c_shape,
-            leg_c_handle,
-            Isometry3::identity(),
-            Material::default(),
-        );
-        let mut actuator_c = Actuator::new(leg_c_handle);
-        actuator_c.set_name("c");
+        let leg_c_collider = ColliderDesc::new(leg_c_shape).density(1.0);
+        let leg_c_joint =
+            RevoluteJoint::new(Unit::new_normalize(Vector3::new(-1.0, 0.0, 0.0)), 0.0);
+        MultibodyDesc::new(leg_c_joint)
+            .collider(&leg_c_collider)
+            .body_shift(Vector3::new(0.0, 4.0, 0.0))
+            .parent_shift(Vector3::new(0.0, -2.0, 4.0))
+            .build_with_parent(body_part_handle, world)
+            .unwrap()
+            .set_name("leg_c".to_string());
+        let mut actuator_c = Actuator::new(body_handle, id);
+        actuator_c.set_name("leg_c");
+        id += 1;
 
         let leg_d_shape = ShapeHandle::new(Cuboid::new(Vector3::new(1.0, 4.0, 1.0)));
-        let leg_d_com = leg_d_shape.center_of_mass();
-        let leg_d_inertia = leg_d_shape.inertia(1.0);
-        let leg_d_joint =
-            RevoluteJoint::new(Unit::new_normalize(Vector3::new(-1.0, 0.0, 0.0)), 0.0);
-        let leg_d_handle = world.add_multibody_link(
-            body_handle,
-            leg_d_joint,
-            Vector3::new(0.0, -2.0, -4.0),
-            Vector3::new(0.0, 4.0, 0.0),
-            leg_d_inertia,
-            leg_d_com,
-        );
-        world.add_collider(
-            COLLIDER_MARGIN,
-            leg_d_shape,
-            leg_d_handle,
-            Isometry3::identity(),
-            Material::default(),
-        );
-        let mut actuator_d = Actuator::new(leg_d_handle);
-        actuator_d.set_name("d");
+        let leg_d_collider = ColliderDesc::new(leg_d_shape).density(1.0);
+        let leg_d_joint = RevoluteJoint::new(Vector3::x_axis(), 0.0);
+        MultibodyDesc::new(leg_d_joint)
+            .collider(&leg_d_collider)
+            .body_shift(Vector3::new(0.0, 4.0, 0.0))
+            .parent_shift(Vector3::new(0.0, -2.0, -4.0))
+            .build_with_parent(body_part_handle, world)
+            .unwrap()
+            .set_name("leg_d".to_string());
+        let mut actuator_d = Actuator::new(body_handle, id);
+        actuator_d.set_name("leg_d");
 
         let mut actuators = vec![actuator_a, actuator_b, actuator_c, actuator_d];
 
         for a in actuators.iter_mut() {
-            a.set_max_angle(0.1);
-            a.set_min_angle(-1.0);
+            a.set_max_angle(1.0);
+            a.set_min_angle(-0.1);
             a.set_max_torque(160.0);
             a.set_max_velocity(1.0);
             a.setup(world);
@@ -164,14 +118,14 @@ impl Robot {
             actuators: actuators,
             time: 0.0,
             actuations: vec![
-                Actuation::new(0, 1.0, -1.0),
-                Actuation::new(1, 1.0, -1.0),
-                Actuation::new(2, 1.0, -1.0),
-                Actuation::new(3, 1.0, -1.0),
-                Actuation::new(0, 2.5, 0.1),
-                Actuation::new(1, 2.5, 0.1),
-                Actuation::new(2, 2.5, 0.1),
-                Actuation::new(3, 2.5, 0.1),
+                Actuation::new(0, 1.0, -0.1),
+                Actuation::new(1, 1.0, -0.1),
+                Actuation::new(2, 1.0, -0.1),
+                Actuation::new(3, 1.0, -0.1),
+                Actuation::new(0, 2.5, 1.0),
+                Actuation::new(1, 2.5, 1.0),
+                Actuation::new(2, 2.5, 1.0),
+                Actuation::new(3, 2.5, 1.0),
             ],
             current_actuation: 0,
         }
@@ -186,7 +140,7 @@ impl Robot {
             robot.actuations.push(Actuation::new(
                 (a * robot.actuators.len() as f32) as usize,
                 b * 5.0,
-                c * -1.1 + 0.1,
+                c * 1.1 - 0.1,
             ));
         }
 
@@ -235,7 +189,7 @@ impl Robot {
         //
         // maybe it would be good to break ties with genome size or something
 
-        if let Some(b) = world.multibody_link(self.body) {
+        if let Some(b) = world.multibody(self.body).and_then(|mb| mb.link(0)) {
             let p = b.position();
             let t = p.translation;
 

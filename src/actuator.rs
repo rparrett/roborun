@@ -1,5 +1,5 @@
 use nphysics3d::joint::RevoluteJoint;
-use nphysics3d::object::BodyHandle;
+use nphysics3d::object::{BodyHandle, BodyPartHandle};
 use nphysics3d::world::World;
 
 pub struct Actuator {
@@ -11,10 +11,11 @@ pub struct Actuator {
     pub deadzone: f32,
     pub handle: BodyHandle,
     pub name: &'static str,
+    pub id: usize,
 }
 
 impl Actuator {
-    pub fn new(handle: BodyHandle) -> Actuator {
+    pub fn new(handle: BodyHandle, id: usize) -> Actuator {
         Actuator {
             max_torque: 160.0,
             min_angle: -1.0,
@@ -24,6 +25,7 @@ impl Actuator {
             deadzone: 0.02,
             handle: handle,
             name: "?",
+            id: id,
         }
     }
 
@@ -52,33 +54,35 @@ impl Actuator {
     }
 
     pub fn setup(&self, world: &mut World<f32>) {
-        if let Some(mut j) = world.multibody_link_mut(self.handle) {
-            let dof = j.joint_mut().downcast_mut::<RevoluteJoint<f32>>().unwrap();
+        if let Some(mb) = world.multibody_mut(self.handle) {
+            if let Some(l) = mb.link_mut(self.id) {
+                let dof = l.joint_mut().downcast_mut::<RevoluteJoint<f32>>().unwrap();
 
-            dof.enable_max_angle(self.max_angle);
-            dof.enable_min_angle(self.min_angle);
-            dof.set_max_angular_motor_torque(self.max_torque);
+                dof.enable_max_angle(self.max_angle);
+                dof.enable_min_angle(self.min_angle);
+                dof.set_max_angular_motor_torque(self.max_torque);
 
-            dof.set_desired_angular_motor_velocity(0.0);
-            dof.enable_angular_motor();
+                dof.set_desired_angular_motor_velocity(0.0);
+                dof.enable_angular_motor();
+            }
         }
     }
 
     pub fn step(&mut self, world: &mut World<f32>) {
-        if let Some(mut j) = world.multibody_link_mut(self.handle) {
-            let dof = j.joint_mut().downcast_mut::<RevoluteJoint<f32>>().unwrap();
+        if let Some(mb) = world.multibody_mut(self.handle) {
+            if let Some(l) = mb.link_mut(self.id) {
+                let dof = l.joint_mut().downcast_mut::<RevoluteJoint<f32>>().unwrap();
 
-            let v = if dof.angle() < self.desired_position - self.deadzone {
-                self.max_velocity
-            } else if dof.angle() > self.desired_position + self.deadzone {
-                self.max_velocity * -1.0
-            } else {
-                0.0
-            };
+                let v = if dof.angle() < self.desired_position - self.deadzone {
+                    self.max_velocity
+                } else if dof.angle() > self.desired_position + self.deadzone {
+                    self.max_velocity * -1.0
+                } else {
+                    0.0
+                };
 
-            // console!(log, format!("[{}] {} < {}->{} < {}: {}", self.name, self.min_angle, dof.angle(), self.desired_position, self.max_angle, v));
-
-            dof.set_desired_angular_motor_velocity(v);
+                dof.set_desired_angular_motor_velocity(v);
+            }
         }
     }
 }

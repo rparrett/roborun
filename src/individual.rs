@@ -1,4 +1,5 @@
-use rand::{OsRng, Rng};
+use rand::rngs::OsRng;
+use rand::Rng;
 
 #[derive(Debug, Clone)]
 pub struct Individual {
@@ -19,7 +20,10 @@ impl Individual {
             genes.push(gene);
         }
 
-        Individual { genes: genes, fitness: 0.0 }
+        Individual {
+            genes: genes,
+            fitness: 0.0,
+        }
     }
 
     pub fn mutate(&mut self) {
@@ -43,7 +47,7 @@ impl Individual {
         if rng.gen_range(0.0, 1.0) > 0.8 {
             self.genes.remove(rng.gen_range(0, self.genes.len()));
         }
-        
+
         // TODO: magic
         if rng.gen_range(0.0, 1.0) > 0.8 {
             self.genes.push(rng.gen_range(0.0, 1.0));
@@ -66,7 +70,12 @@ impl Individual {
 
         child.genes.splice(
             give_start..(give_start + give_half),
-            (*parent_b).genes.iter().cloned().skip(take_start).take(take_half)
+            (*parent_b)
+                .genes
+                .iter()
+                .cloned()
+                .skip(take_start)
+                .take(take_half),
         );
         child.mutate();
 

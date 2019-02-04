@@ -1,15 +1,13 @@
 use crate::objects::node;
-use kiss3d::resource;
 use kiss3d::scene::SceneNode;
 use kiss3d::window::Window;
 use na::{self, Isometry3, Point3, Vector3};
-use ncollide3d::shape::TriMesh;
-use nphysics3d::object::{ColliderAnchor, ColliderHandle};
+use ncollide3d::shape;
+use ncollide3d::transformation::ToTriMesh;
+use nphysics3d::object::ColliderHandle;
 use nphysics3d::world::World;
-use std::cell::RefCell;
-use std::rc::Rc;
 
-pub struct Mesh {
+pub struct HeightField {
     color: Point3<f32>,
     base_color: Point3<f32>,
     delta: Isometry3<f32>,
@@ -17,27 +15,23 @@ pub struct Mesh {
     collider: ColliderHandle,
 }
 
-impl Mesh {
+impl HeightField {
     pub fn new(
         collider: ColliderHandle,
         world: &World<f32>,
         delta: Isometry3<f32>,
-        vertices: Vec<Point3<f32>>,
-        indices: Vec<Point3<u32>>,
+        heightfield: &shape::HeightField<f32>,
         color: Point3<f32>,
         window: &mut Window,
-    ) -> Mesh {
-        let vs = vertices;
-        let is = indices.into_iter().map(na::convert).collect();
+    ) -> HeightField {
+        let mesh = heightfield.to_trimesh(());
 
-        let mesh = resource::Mesh::new(vs, is, None, None, false);
-
-        let mut res = Mesh {
-            color,
+        let mut res = HeightField {
+            color: color,
             base_color: color,
-            delta,
-            gfx: window.add_mesh(Rc::new(RefCell::new(mesh)), Vector3::from_element(1.0)),
-            collider,
+            delta: delta,
+            gfx: window.add_trimesh(mesh, Vector3::repeat(1.0)),
+            collider: collider,
         };
 
         if world
@@ -81,22 +75,6 @@ impl Mesh {
             &self.color,
             &self.delta,
         );
-
-        // Update if some deformation occurred.
-        // FIXME: don't update if it did not move.
-        if let Some(c) = world.collider(self.collider) {
-            if let ColliderAnchor::OnDeformableBody { .. } = c.anchor() {
-                let shape = c.shape().as_shape::<TriMesh<f32>>().unwrap();
-                let vtx = shape.points();
-
-                self.gfx.modify_vertices(&mut |vertices| {
-                    for (v, new_v) in vertices.iter_mut().zip(vtx.iter()) {
-                        *v = *new_v
-                    }
-                });
-                self.gfx.recompute_normals();
-            }
-        }
     }
 
     pub fn scene_node(&self) -> &SceneNode {

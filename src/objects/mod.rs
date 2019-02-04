@@ -1,8 +1,10 @@
 pub mod ball;
 pub mod box_node;
+pub mod capsule;
 pub mod cone;
 pub mod convex;
 pub mod cylinder;
+pub mod heightfield;
 pub mod mesh;
 pub mod node;
 pub mod plane;

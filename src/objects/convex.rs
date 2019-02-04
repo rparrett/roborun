@@ -1,4 +1,4 @@
-use super::node::update_scene_node;
+use crate::objects::node;
 use kiss3d::scene::SceneNode;
 use kiss3d::window::Window;
 use na::{Isometry3, Point3, Vector3};
@@ -64,7 +64,7 @@ impl Convex {
     }
 
     pub fn update(&mut self, world: &World<f32>) {
-        update_scene_node(
+        node::update_scene_node(
             &mut self.gfx,
             world,
             self.collider,

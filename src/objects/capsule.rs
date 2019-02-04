@@ -5,7 +5,7 @@ use na::{Isometry3, Point3};
 use nphysics3d::object::ColliderHandle;
 use nphysics3d::world::World;
 
-pub struct Cylinder {
+pub struct Capsule {
     color: Point3<f32>,
     base_color: Point3<f32>,
     delta: Isometry3<f32>,
@@ -13,7 +13,7 @@ pub struct Cylinder {
     collider: ColliderHandle,
 }
 
-impl Cylinder {
+impl Capsule {
     pub fn new(
         collider: ColliderHandle,
         world: &World<f32>,
@@ -22,13 +22,13 @@ impl Cylinder {
         h: f32,
         color: Point3<f32>,
         window: &mut window::Window,
-    ) -> Cylinder {
-        let mut res = Cylinder {
-            color,
+    ) -> Capsule {
+        let mut res = Capsule {
+            color: color,
             base_color: color,
-            delta,
-            gfx: window.add_cylinder(r, h),
-            collider,
+            delta: delta,
+            gfx: window.add_capsule(r, h),
+            collider: collider,
         };
 
         if world
