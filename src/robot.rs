@@ -39,15 +39,15 @@ impl Robot {
         let body_shape = ShapeHandle::new(Cuboid::new(Vector3::new(4.0, 1.0, 4.0)));
         let body_pos = Isometry3::new(Vector3::y() * 11.0, na::zero());
         let body_joint = FreeJoint::new(body_pos);
-        let body_collider = ColliderDesc::new(body_shape).density(1.0);
+        let body_collider = ColliderDesc::new(body_shape).density(0.5);
         let multibody = MultibodyDesc::new(body_joint).collider(&body_collider);
         let body = multibody.build(world);
         let body_handle = body.handle();
         let body_part_handle = body.root().part_handle();
         id += 1;
 
-        let leg_a_shape = ShapeHandle::new(Cuboid::new(Vector3::new(1.0, 4.0, 1.0)));
-        let leg_a_collider = ColliderDesc::new(leg_a_shape).density(1.0);
+        let leg_a_shape = ShapeHandle::new(Cuboid::new(Vector3::new(0.5, 4.0, 0.5)));
+        let leg_a_collider = ColliderDesc::new(leg_a_shape).density(0.5);
         let leg_a_joint = RevoluteJoint::new(Vector3::z_axis(), 0.0);
         MultibodyDesc::new(leg_a_joint)
             .collider(&leg_a_collider)
@@ -60,8 +60,8 @@ impl Robot {
         actuator_a.set_name("leg_a");
         id += 1;
 
-        let leg_b_shape = ShapeHandle::new(Cuboid::new(Vector3::new(1.0, 4.0, 1.0)));
-        let leg_b_collider = ColliderDesc::new(leg_b_shape).density(1.0);
+        let leg_b_shape = ShapeHandle::new(Cuboid::new(Vector3::new(0.5, 4.0, 0.5)));
+        let leg_b_collider = ColliderDesc::new(leg_b_shape).density(0.5);
         let leg_b_joint =
             RevoluteJoint::new(Unit::new_normalize(Vector3::new(0.0, 0.0, -1.0)), 0.0);
         MultibodyDesc::new(leg_b_joint)
@@ -75,8 +75,8 @@ impl Robot {
         actuator_b.set_name("leg_b");
         id += 1;
 
-        let leg_c_shape = ShapeHandle::new(Cuboid::new(Vector3::new(1.0, 4.0, 1.0)));
-        let leg_c_collider = ColliderDesc::new(leg_c_shape).density(1.0);
+        let leg_c_shape = ShapeHandle::new(Cuboid::new(Vector3::new(0.5, 4.0, 0.5)));
+        let leg_c_collider = ColliderDesc::new(leg_c_shape).density(0.5);
         let leg_c_joint =
             RevoluteJoint::new(Unit::new_normalize(Vector3::new(-1.0, 0.0, 0.0)), 0.0);
         MultibodyDesc::new(leg_c_joint)
@@ -90,8 +90,8 @@ impl Robot {
         actuator_c.set_name("leg_c");
         id += 1;
 
-        let leg_d_shape = ShapeHandle::new(Cuboid::new(Vector3::new(1.0, 4.0, 1.0)));
-        let leg_d_collider = ColliderDesc::new(leg_d_shape).density(1.0);
+        let leg_d_shape = ShapeHandle::new(Cuboid::new(Vector3::new(0.5, 4.0, 0.5)));
+        let leg_d_collider = ColliderDesc::new(leg_d_shape).density(0.5);
         let leg_d_joint = RevoluteJoint::new(Vector3::x_axis(), 0.0);
         MultibodyDesc::new(leg_d_joint)
             .collider(&leg_d_collider)
@@ -106,8 +106,8 @@ impl Robot {
         let mut actuators = vec![actuator_a, actuator_b, actuator_c, actuator_d];
 
         for a in actuators.iter_mut() {
-            a.set_max_angle(1.0);
-            a.set_min_angle(-0.1);
+            a.set_max_angle(1.5);
+            a.set_min_angle(-0.2);
             a.set_max_torque(160.0);
             a.set_max_velocity(1.0);
             a.setup(world);
@@ -140,7 +140,7 @@ impl Robot {
             robot.actuations.push(Actuation::new(
                 (a * robot.actuators.len() as f32) as usize,
                 b * 5.0,
-                c * 1.1 - 0.1,
+                c * 1.7 - 0.2,
             ));
         }
 
