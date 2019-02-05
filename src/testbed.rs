@@ -10,6 +10,7 @@ use crate::crucible::{make_world, Crucible};
 use crate::engine::GraphicsManager;
 use crate::robot::Robot;
 use crate::world_owner::WorldOwner;
+use itertools::join;
 use kiss3d::camera::Camera;
 use kiss3d::event::{Action, Key, Modifiers, WindowEvent};
 use kiss3d::light::Light;
@@ -26,7 +27,6 @@ use nphysics3d::joint::{ConstraintHandle, MouseConstraint};
 use nphysics3d::math::ForceType;
 use nphysics3d::object::{BodyHandle, BodyPartHandle, ColliderHandle};
 use nphysics3d::world::World;
-use itertools::join;
 
 #[derive(PartialEq)]
 enum RunMode {
@@ -127,7 +127,7 @@ impl Testbed {
             Point3::new(1.000, 0.286, 0.000),
             Point3::new(0.557, 0.922, 0.000),
             Point3::new(0.565, 0.016, 0.659),
-            Point3::new(0.047, 0.353, 0.651)
+            Point3::new(0.047, 0.353, 0.651),
         ];
 
         Testbed {
@@ -296,17 +296,14 @@ impl State for Testbed {
     fn step(&mut self, window: &mut Window) {
         if self.reset {
             let mut world = make_world();
-            let robot = Robot::from_individual(
-                self.crucible.population.best(),
-                &mut world,
-            );
+            let robot = Robot::from_individual(self.crucible.population.best(), &mut world);
             self.set_body_color(robot.body, self.robot_colors[self.robot_color]);
             self.robot_color += 1;
             if self.robot_color >= self.robot_colors.len() {
                 self.robot_color = 0
             }
             self.robot = Some(robot);
-            
+
             self.running_replace_world(world, window);
             self.time = 0.0;
             self.reset = false;
@@ -661,15 +658,31 @@ impl State for Testbed {
             &self.font,
             &color,
         );
-        
+
         if self.running != RunMode::Running {
-            window.draw_text("(Paused)", &Point2::new(100.0, 5.0), 40.0, &self.font, &color);
+            window.draw_text(
+                "(Paused)",
+                &Point2::new(100.0, 5.0),
+                40.0,
+                &self.font,
+                &color,
+            );
         }
 
         // TODO can I do this without the intermediate vec? without String?
-        let mut lines: Vec<String> = self.crucible.stats.iter().rev().take(5).map(|x|
-            format!("{:<4} {:>6.2} {:>6.2} {:>6.2}", x.generation, x.min_fitness, x.avg_fitness, x.max_fitness)
-        ).collect();
+        let mut lines: Vec<String> = self
+            .crucible
+            .stats
+            .iter()
+            .rev()
+            .take(5)
+            .map(|x| {
+                format!(
+                    "{:<4} {:>6.2} {:>6.2} {:>6.2}",
+                    x.generation, x.min_fitness, x.avg_fitness, x.max_fitness
+                )
+            })
+            .collect();
         lines.insert(0, "Gen    Min    Avg    Max".to_string());
         let status = lines.join("\n");
 
@@ -678,7 +691,7 @@ impl State for Testbed {
             &Point2::new(5.0, 85.0),
             40.0,
             &self.font,
-            &color
+            &color,
         );
 
         window.draw_text(CONTROLS, &Point2::new(5.0, 365.0), 40.0, &self.font, &color);

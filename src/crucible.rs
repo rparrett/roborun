@@ -22,7 +22,7 @@ pub struct Crucible {
     robot: Robot,
     elapsed: f32,
     pub last_best: Individual,
-    pub stats: Vec<GenerationStats>
+    pub stats: Vec<GenerationStats>,
 }
 
 impl Crucible {
@@ -41,7 +41,7 @@ impl Crucible {
             robot: robot,
             elapsed: 0.0,
             last_best: last_best,
-            stats: Vec::new()
+            stats: Vec::new(),
         }
     }
 
@@ -77,7 +77,7 @@ impl Crucible {
                     generation: self.generation,
                     min_fitness: stats.0,
                     max_fitness: stats.1,
-                    avg_fitness: stats.2
+                    avg_fitness: stats.2,
                 });
 
                 self.generation += 1;
