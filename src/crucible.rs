@@ -18,6 +18,7 @@ pub struct Crucible {
     pub generation: usize,
     pub individual: usize,
     pub step: usize,
+    pub max_step: usize,
     world: World<f32>,
     robot: Robot,
     elapsed: f32,
@@ -37,6 +38,7 @@ impl Crucible {
             generation: 1,
             individual: 0,
             step: 0,
+            max_step: 500, // roughly 8 seconds
             world: world,
             robot: robot,
             elapsed: 0.0,
@@ -59,7 +61,7 @@ impl Crucible {
         self.step += 1;
         self.elapsed = self.world.timestep();
 
-        if self.step == 1000 {
+        if self.step == self.max_step {
             self.step = 0;
             self.elapsed = 0.0;
 
@@ -83,6 +85,13 @@ impl Crucible {
                 self.generation += 1;
                 self.population.cull();
                 self.individual = 0;
+
+                // TODO magic
+                if self.generation > 25 {
+                    self.max_step = 2000;
+                } else if self.generation > 5 {
+                    self.max_step = 1000;
+                }
             }
         }
     }
