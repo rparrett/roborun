@@ -4,8 +4,10 @@
 
 TODO
 
-Simultaneously display an individual robot while simulating a larger population
-Show robot ghost from previous generation in a differet color / collision group
-Show user fun data
-Add texture or something to ground so movement is more obvious
-Add additional interesting robot variants
+- Show robot ghost from previous generation in a differet color / collision group
+ - Also, maybe cycle through a few different colors when resetting for the next generation
+- Surely I can hack together a simple circle shadow based on the body y vector
+ - Or find some other way to make the lighting look less weird
+- Show user fun data
+- Add texture or something to ground so movement is more obvious
+- Add additional interesting robot variants
