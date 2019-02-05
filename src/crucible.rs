@@ -38,7 +38,7 @@ impl Crucible {
             generation: 1,
             individual: 0,
             step: 0,
-            max_step: 500, // roughly 8 seconds
+            max_step: 1500,
             world: world,
             robot: robot,
             elapsed: 0.0,
@@ -85,13 +85,6 @@ impl Crucible {
                 self.generation += 1;
                 self.population.cull();
                 self.individual = 0;
-
-                // TODO magic
-                if self.generation > 25 {
-                    self.max_step = 2000;
-                } else if self.generation > 5 {
-                    self.max_step = 1000;
-                }
             }
         }
     }
