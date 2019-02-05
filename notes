@@ -5,9 +5,12 @@
 TODO
 
 - Show robot ghost from previous generation in a differet color / collision group
+ - Is this even a good idea? Could get weird when things get stagnant. Last best unique individual.
 - Surely I can hack together a simple circle shadow based on the body y vector
  - Or find some other way to make the lighting look less weird
 - Show user a fun data visualization
 - Add texture or something to ground so movement is more obvious
 - Add additional interesting robot variants
 - Let's make it possible to adjust various constants without recompiling
+- Accomodate various computation speeds. Cycle through display of population and show for only the
+  simulation period, until a new generation is ready.
