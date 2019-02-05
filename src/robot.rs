@@ -187,6 +187,10 @@ impl Robot {
         // somersault, as long as it's right-side-up when the fitness is evaluated. that's
         // probably not ideal.
         //
+        // also, it's possible that a very fit robot that has discovered the edge of the earth
+        // will mistakenly be judged unfit as it tumbles. can we check its current collision
+        // state or something?
+        //
         // maybe it would be good to break ties with genome size or something
 
         if let Some(b) = world.multibody(self.body).and_then(|mb| mb.link(0)) {
