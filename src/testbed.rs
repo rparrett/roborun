@@ -101,6 +101,8 @@ pub struct Testbed {
     grabbed_object_plane: (Point3<f32>, Vector3<f32>),
 
     robot: Option<Robot>,
+    robot_colors: Vec<Point3<f32>>,
+    robot_color: usize,
 
     crucible: Crucible,
     showing_gen: usize,
@@ -118,6 +120,14 @@ impl Testbed {
         window.set_background_color(0.9, 0.9, 0.9);
         window.set_framerate_limit(Some(60));
         window.set_light(Light::StickToCamera);
+
+        let robot_colors = vec![
+            Point3::new(0.557, 0.922, 0.000),
+            Point3::new(1.000, 0.286, 0.000),
+            Point3::new(0.557, 0.922, 0.000),
+            Point3::new(0.565, 0.016, 0.659),
+            Point3::new(0.047, 0.353, 0.651)
+        ];
 
         Testbed {
             world: Box::new(Arc::new(RwLock::new(world))),
@@ -137,6 +147,8 @@ impl Testbed {
             grabbed_object_plane: (Point3::origin(), na::zero()),
             crucible: Crucible::new(),
             robot: None,
+            robot_colors: robot_colors,
+            robot_color: 0,
             reset: true,
             showing_gen: 1,
         }
@@ -283,10 +295,17 @@ impl State for Testbed {
     fn step(&mut self, window: &mut Window) {
         if self.reset {
             let mut world = make_world();
-            self.robot = Some(Robot::from_individual(
+            let robot = Robot::from_individual(
                 self.crucible.population.best(),
                 &mut world,
-            ));
+            );
+            self.set_body_color(robot.body, self.robot_colors[self.robot_color]);
+            self.robot_color += 1;
+            if self.robot_color >= self.robot_colors.len() {
+                self.robot_color = 0
+            }
+            self.robot = Some(robot);
+            
             self.running_replace_world(world, window);
             self.time = 0.0;
             self.reset = false;
