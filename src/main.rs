@@ -10,6 +10,7 @@ extern crate rand;
 extern crate time;
 
 mod actuator;
+mod crucible;
 mod engine;
 mod individual;
 mod objects;
@@ -17,7 +18,6 @@ mod population;
 mod robot;
 mod testbed;
 mod world_owner;
-mod crucible;
 
 use crate::engine::GraphicsManager;
 use crate::individual::Individual;

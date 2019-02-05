@@ -48,7 +48,7 @@ impl Population {
         self.individuals
             .sort_by(|a, b| b.fitness.partial_cmp(&a.fitness).unwrap());
         self.individuals.truncate(keep);
-        
+
         for _ in 0..breed {
             // crossover or just clone and mutate
 

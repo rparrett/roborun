@@ -1,6 +1,6 @@
 use rand::rngs::OsRng;
-use rand::Rng;
 use rand::seq::IteratorRandom;
+use rand::Rng;
 
 #[derive(Debug, Clone)]
 pub struct Individual {
@@ -49,7 +49,7 @@ impl Individual {
 
         if rng.gen_range(0.0, 1.0) < remove_chance {
             let i = rng.gen_range(0, self.genes.len() / alignment) * alignment;
-            
+
             for _ in 0..alignment {
                 self.genes.remove(i);
             }

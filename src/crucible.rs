@@ -1,10 +1,10 @@
 use crate::individual::Individual;
 use crate::population::Population;
 use crate::robot::Robot;
-use nphysics3d::world::World;
 use na::{Isometry3, Point3, Vector3};
 use ncollide3d::shape::{Cuboid, Cylinder, ShapeHandle};
 use nphysics3d::object::{BodyHandle, ColliderDesc};
+use nphysics3d::world::World;
 
 pub struct Crucible {
     pub population: Population,
@@ -14,7 +14,7 @@ pub struct Crucible {
     world: World<f32>,
     robot: Robot,
     elapsed: f32,
-    best: Option<Individual>
+    best: Option<Individual>,
 }
 
 impl Crucible {
@@ -22,9 +22,9 @@ impl Crucible {
         let population = Population::random(100);
         let mut world = make_world();
         let robot = Robot::from_individual(&population.individuals[0], &mut world);
-        
+
         Crucible {
-            population: population, 
+            population: population,
             generation: 1,
             individual: 0,
             step: 0,
@@ -38,7 +38,10 @@ impl Crucible {
     pub fn step(&mut self) {
         if self.step == 0 {
             self.world = make_world();
-            self.robot = Robot::from_individual(&self.population.individuals[self.individual], &mut self.world);
+            self.robot = Robot::from_individual(
+                &self.population.individuals[self.individual],
+                &mut self.world,
+            );
         }
 
         self.robot.step(&mut self.world, self.elapsed);
@@ -50,12 +53,20 @@ impl Crucible {
             self.step = 0;
             self.elapsed = 0.0;
 
-            self.population.individuals[self.individual].fitness = self.robot.fitness(&mut self.world);
+            self.population.individuals[self.individual].fitness =
+                self.robot.fitness(&mut self.world);
 
             self.individual += 1;
 
             if self.individual == self.population.num {
-                console!(log, format!("gen {}: {}", self.generation, self.population.best().fitness));
+                console!(
+                    log,
+                    format!(
+                        "gen {}: {}",
+                        self.generation,
+                        self.population.best().fitness
+                    )
+                );
 
                 self.best = Some(self.population.best().clone());
                 self.generation += 1;

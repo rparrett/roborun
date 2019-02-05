@@ -6,10 +6,10 @@ use std::path::Path;
 use std::rc::Rc;
 use std::sync::{Arc, RwLock};
 
+use crate::crucible::{make_world, Crucible};
 use crate::engine::GraphicsManager;
-use crate::world_owner::WorldOwner;
-use crate::crucible::{Crucible, make_world};
 use crate::robot::Robot;
+use crate::world_owner::WorldOwner;
 use kiss3d::camera::Camera;
 use kiss3d::event::{Action, Key, Modifiers, WindowEvent};
 use kiss3d::light::Light;
@@ -104,7 +104,7 @@ pub struct Testbed {
 
     crucible: Crucible,
     showing_gen: usize,
-    reset: bool
+    reset: bool,
 }
 
 type Callbacks = Vec<Box<Fn(&mut WorldOwner, &mut GraphicsManager, f32)>>;
@@ -138,7 +138,7 @@ impl Testbed {
             crucible: Crucible::new(),
             robot: None,
             reset: true,
-            showing_gen: 1
+            showing_gen: 1,
         }
     }
 
@@ -174,8 +174,7 @@ impl Testbed {
         self.graphics.clear(window);
 
         for co in world.colliders() {
-            self.graphics
-                .add(window, co.handle(), &world);
+            self.graphics.add(window, co.handle(), &world);
         }
     }
 
@@ -284,7 +283,10 @@ impl State for Testbed {
     fn step(&mut self, window: &mut Window) {
         if self.reset {
             let mut world = make_world();
-            self.robot = Some(Robot::from_individual(self.crucible.population.best(), &mut world));
+            self.robot = Some(Robot::from_individual(
+                self.crucible.population.best(),
+                &mut world,
+            ));
             self.running_replace_world(world, window);
             self.time = 0.0;
             self.reset = false;
