@@ -26,6 +26,7 @@ use nphysics3d::joint::{ConstraintHandle, MouseConstraint};
 use nphysics3d::math::ForceType;
 use nphysics3d::object::{BodyHandle, BodyPartHandle, ColliderHandle};
 use nphysics3d::world::World;
+use itertools::join;
 
 #[derive(PartialEq)]
 enum RunMode {
@@ -652,22 +653,35 @@ impl State for Testbed {
 
         window.draw_text(
             &format!(
-                "Sim time: {:.*}sec. Gen: {} Ind: {} Stp: {}",
-                4,
-                self.world.get().performance_counters().step_time(),
-                self.crucible.generation,
-                self.crucible.individual,
-                self.crucible.step,
+                "{:.0}%",
+                self.crucible.individual as f32 / self.crucible.population.num as f32 * 100.0,
             )[..],
             &Point2::new(5.0, 5.0),
             40.0,
             &self.font,
             &color,
         );
+        
         if self.running != RunMode::Running {
-            window.draw_text("Paused", &Point2::new(5.0, 50.0), 40.0, &self.font, &color);
+            window.draw_text("(Paused)", &Point2::new(100.0, 5.0), 40.0, &self.font, &color);
         }
-        window.draw_text(CONTROLS, &Point2::new(5.0, 95.0), 40.0, &self.font, &color);
+
+        // TODO can I do this without the intermediate vec? without String?
+        let mut lines: Vec<String> = self.crucible.stats.iter().rev().take(5).map(|x|
+            format!("{:<4} {:>6.2} {:>6.2} {:>6.2}", x.generation, x.min_fitness, x.avg_fitness, x.max_fitness)
+        ).collect();
+        lines.insert(0, "Gen    Min    Avg    Max".to_string());
+        let status = lines.join("\n");
+
+        window.draw_text(
+            status.as_str(),
+            &Point2::new(5.0, 85.0),
+            40.0,
+            &self.font,
+            &color
+        );
+
+        window.draw_text(CONTROLS, &Point2::new(5.0, 365.0), 40.0, &self.font, &color);
     }
 }
 

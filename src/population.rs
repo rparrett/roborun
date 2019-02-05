@@ -28,6 +28,26 @@ impl Population {
             .unwrap()
     }
 
+    pub fn stats(&self) -> (f32, f32, f32) {
+        let mut min = std::f32::MAX;
+        let mut max = 0.0;
+        let mut sum = 0.0;
+
+        for i in self.individuals.iter() {
+            if i.fitness < min {
+                min = i.fitness;
+            }
+            if i.fitness > max {
+                max = i.fitness;
+            }
+            sum += i.fitness;
+        }
+
+        let avg = sum / self.individuals.len() as f32;
+
+        (min, max, avg)
+    }
+
     pub fn cull(&mut self) {
         let mut rng = OsRng::new().unwrap();
 

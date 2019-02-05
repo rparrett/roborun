@@ -6,6 +6,13 @@ use ncollide3d::shape::{Cuboid, Cylinder, ShapeHandle};
 use nphysics3d::object::{BodyHandle, ColliderDesc};
 use nphysics3d::world::World;
 
+pub struct GenerationStats {
+    pub generation: usize,
+    pub avg_fitness: f32,
+    pub min_fitness: f32,
+    pub max_fitness: f32,
+}
+
 pub struct Crucible {
     pub population: Population,
     pub generation: usize,
@@ -14,7 +21,8 @@ pub struct Crucible {
     world: World<f32>,
     robot: Robot,
     elapsed: f32,
-    best: Option<Individual>,
+    pub last_best: Individual,
+    pub stats: Vec<GenerationStats>
 }
 
 impl Crucible {
@@ -22,6 +30,7 @@ impl Crucible {
         let population = Population::random(100);
         let mut world = make_world();
         let robot = Robot::from_individual(&population.individuals[0], &mut world);
+        let last_best = population.individuals[0].clone();
 
         Crucible {
             population: population,
@@ -31,7 +40,8 @@ impl Crucible {
             world: world,
             robot: robot,
             elapsed: 0.0,
-            best: None,
+            last_best: last_best,
+            stats: Vec::new()
         }
     }
 
@@ -59,16 +69,17 @@ impl Crucible {
             self.individual += 1;
 
             if self.individual == self.population.num {
-                console!(
-                    log,
-                    format!(
-                        "gen {}: {}",
-                        self.generation,
-                        self.population.best().fitness
-                    )
-                );
+                self.last_best = self.population.best().clone();
 
-                self.best = Some(self.population.best().clone());
+                let stats = self.population.stats();
+
+                self.stats.push(GenerationStats {
+                    generation: self.generation,
+                    min_fitness: stats.0,
+                    max_fitness: stats.1,
+                    avg_fitness: stats.2
+                });
+
                 self.generation += 1;
                 self.population.cull();
                 self.individual = 0;
