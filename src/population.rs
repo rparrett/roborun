@@ -55,7 +55,7 @@ impl Population {
         let selection_ratio = 0.2;
         let crossover_ratio = 0.6;
         let crossover_clone_ratio = 0.5;
-        let mutation_rate = 0.05;
+        let mutation_rate = 0.07;
 
         let keep = (selection_ratio * self.num as f32) as usize;
         let breed = (crossover_ratio * self.num as f32) as usize;
