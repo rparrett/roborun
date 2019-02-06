@@ -22,6 +22,7 @@ impl Box {
         ry: f32,
         rz: f32,
         color: Point3<f32>,
+        texture: String,
         window: &mut window::Window,
     ) -> Box {
         let gx = rx * 2.0;
@@ -47,6 +48,10 @@ impl Box {
         }
 
         res.gfx.set_color(color.x, color.y, color.z);
+        if (!texture.is_empty()) {
+            res.gfx.set_texture_with_name(texture.as_str())
+        }
+
         res.gfx
             .set_local_transformation(world.collider(collider).unwrap().position() * res.delta);
         res.update(world);

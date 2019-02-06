@@ -24,6 +24,7 @@ pub struct GraphicsManager {
     rand: XorShiftRng,
     b2sn: HashMap<BodyHandle, Vec<Node>>,
     b2color: HashMap<BodyHandle, Point3<f32>>,
+    b2texture: HashMap<BodyHandle, String>,
     c2color: HashMap<ColliderHandle, Point3<f32>>,
     rays: Vec<Ray<f32>>,
     arc_ball: ArcBall,
@@ -52,6 +53,7 @@ impl GraphicsManager {
             rand: rng,
             b2sn: HashMap::new(),
             b2color: HashMap::new(),
+            b2texture: HashMap::new(),
             c2color: HashMap::new(),
             rays: Vec::new(),
             aabbs: Vec::new(),
@@ -141,6 +143,19 @@ impl GraphicsManager {
             }
         }
     }
+    
+    pub fn set_body_texture(&mut self, b: BodyHandle, texture: String) {
+        self.b2texture.insert(b, texture);
+
+        // TODO. for now, this will only work on objects that haven't been added yet.
+        //
+/*        if let Some(ns) = self.b2sn.get_mut(&b) {
+            for n in ns.iter_mut() {
+                n.set_texture(texture)
+            }
+        }*/
+
+    }
 
     pub fn set_collider_color(&mut self, handle: ColliderHandle, color: Point3<f32>) {
         self.c2color.insert(handle, color);
@@ -182,15 +197,22 @@ impl GraphicsManager {
             self.alloc_color(collider.body())
         };
 
-        self.add_with_color(window, id, world, color)
+        let texture = if let Some(t) = self.b2texture.get(&collider.body()).cloned() {
+            t
+        } else {
+            String::new()
+        };
+
+        self.add_with_color_and_texture(window, id, world, color, texture)
     }
 
-    pub fn add_with_color(
+    pub fn add_with_color_and_texture(
         &mut self,
         window: &mut Window,
         id: ColliderHandle,
         world: &World<f32>,
         color: Point3<f32>,
+        texture: String,
     ) {
         let collider = world.collider(id).unwrap();
         let key = collider.body();
@@ -198,7 +220,7 @@ impl GraphicsManager {
 
         // NOTE: not optimal allocation-wise, but it is not critical here.
         let mut new_nodes = Vec::new();
-        self.add_shape(window, id, world, na::one(), shape, color, &mut new_nodes);
+        self.add_shape(window, id, world, na::one(), shape, color, texture, &mut new_nodes);
 
         {
             let nodes = self.b2sn.entry(key).or_insert_with(Vec::new);
@@ -214,6 +236,7 @@ impl GraphicsManager {
         delta: Isometry3<f32>,
         shape: &Shape<f32>,
         color: Point3<f32>,
+        texture: String,
         out: &mut Vec<Node>,
     ) {
         if let Some(s) = shape.as_shape::<shape::Plane<f32>>() {
@@ -221,7 +244,7 @@ impl GraphicsManager {
         } else if let Some(s) = shape.as_shape::<shape::Ball<f32>>() {
             self.add_ball(window, object, world, delta, s, color, out)
         } else if let Some(s) = shape.as_shape::<Cuboid<f32>>() {
-            self.add_box(window, object, world, delta, s, color, out)
+            self.add_box(window, object, world, delta, s, color, texture, out)
         } else if let Some(s) = shape.as_shape::<ConvexHull<f32>>() {
             self.add_convex(window, object, world, delta, s, color, out) /*
                                                                          } else if let Some(s) = shape.as_shape::<shape::Cylinder<f32>>() {
@@ -232,7 +255,7 @@ impl GraphicsManager {
             self.add_capsule(window, object, world, delta, s, color, out)
         } else if let Some(s) = shape.as_shape::<Compound<f32>>() {
             for &(t, ref s) in s.shapes().iter() {
-                self.add_shape(window, object, world, delta * t, s.as_ref(), color, out)
+                self.add_shape(window, object, world, delta * t, s.as_ref(), color, String::new(), out)
             }
         } else if let Some(s) = shape.as_shape::<TriMesh<f32>>() {
             self.add_mesh(window, object, world, delta, s, color, out);
@@ -359,6 +382,7 @@ impl GraphicsManager {
         delta: Isometry3<f32>,
         shape: &Cuboid<f32>,
         color: Point3<f32>,
+        texture: String,
         out: &mut Vec<Node>,
     ) {
         let margin = world.collider(object).unwrap().margin();
@@ -367,7 +391,7 @@ impl GraphicsManager {
         let rz = shape.half_extents().z + margin;
 
         out.push(Node::Box(Box::new(
-            object, world, delta, rx, ry, rz, color, window,
+            object, world, delta, rx, ry, rz, color, texture, window,
         )))
     }
 

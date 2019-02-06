@@ -120,7 +120,12 @@ impl Testbed {
         let mut window = Box::new(Window::new("nphysics: 3d demo"));
         window.set_background_color(0.9, 0.9, 0.9);
         window.set_framerate_limit(Some(60));
-        window.set_light(Light::StickToCamera);
+//        window.set_light(Light::StickToCamera);
+        window.set_light(Light::Absolute(Point3::new(30.0, 30.0, 30.0)));
+        window.set_ambient_light(Point3::new(0.1, 0.1, 0.1));
+        window.add_texture_from_memory(include_bytes!("../assets/floor.png"), "floor");
+        window.add_texture_from_memory(include_bytes!("../assets/metal.png"), "metal");
+
 
         let robot_colors = vec![
             Point3::new(0.557, 0.922, 0.000),
@@ -215,6 +220,10 @@ impl Testbed {
     pub fn set_body_color(&mut self, body: BodyHandle, color: Point3<f32>) {
         self.graphics.set_body_color(body, color);
     }
+    
+    pub fn set_body_texture(&mut self, body: BodyHandle, texture: String) {
+        self.graphics.set_body_texture(body, texture);
+    }
 
     pub fn set_collider_color(&mut self, collider: ColliderHandle, color: Point3<f32>) {
         self.graphics.set_collider_color(collider, color);
@@ -298,6 +307,9 @@ impl State for Testbed {
             let mut world = make_world();
             let robot = Robot::from_individual(self.crucible.population.best(), &mut world);
             self.set_body_color(robot.body, self.robot_colors[self.robot_color]);
+            self.set_body_texture(robot.body, "metal".to_string());
+            self.set_body_color(BodyHandle::ground(), Point3::new(0.5, 0.5, 0.5));
+            self.set_body_texture(BodyHandle::ground(), "floor".to_string());
             self.robot_color += 1;
             if self.robot_color >= self.robot_colors.len() {
                 self.robot_color = 0
