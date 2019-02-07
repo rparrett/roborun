@@ -66,7 +66,7 @@ impl Testbed {
         window.set_background_color(0.9, 0.9, 0.9);
         window.set_framerate_limit(Some(60));
         window.set_light(Light::Absolute(Point3::new(30.0, 30.0, 30.0)));
-        window.set_ambient_light(Point3::new(0.1, 0.1, 0.1));
+        window.set_ambient_light(Point3::new(0.2, 0.2, 0.2));
         window.add_texture_from_memory(include_bytes!("../assets/floor.png"), "floor");
         window.add_texture_from_memory(include_bytes!("../assets/metal.png"), "metal");
 
