@@ -11,7 +11,7 @@ use crate::engine::GraphicsManager;
 use crate::robot::Robot;
 use crate::world_owner::WorldOwner;
 use itertools::join;
-use kiss3d::camera::Camera;
+use kiss3d::camera::{ArcBall, Camera};
 use kiss3d::event::{Action, Key, Modifiers, WindowEvent};
 use kiss3d::light::Light;
 use kiss3d::loader::obj;
@@ -114,7 +114,7 @@ type Callbacks = Vec<Box<Fn(&mut WorldOwner, &mut GraphicsManager, f32)>>;
 
 impl Testbed {
     pub fn new_empty() -> Testbed {
-        let graphics = GraphicsManager::new();
+        let mut graphics = GraphicsManager::new();
         let world = World::new();
 
         let mut window = Box::new(Window::new("nphysics: 3d demo"));
@@ -126,6 +126,10 @@ impl Testbed {
         window.add_texture_from_memory(include_bytes!("../assets/floor.png"), "floor");
         window.add_texture_from_memory(include_bytes!("../assets/metal.png"), "metal");
 
+        let camera = graphics.camera_mut();
+        camera.set_max_pitch(std::f32::consts::PI / 2.0);        
+        camera.set_min_dist(10.0);
+        camera.set_max_dist(400.0);
 
         let robot_colors = vec![
             Point3::new(0.557, 0.922, 0.000),
@@ -214,7 +218,7 @@ impl Testbed {
     }
 
     pub fn look_at(&mut self, eye: Point3<f32>, at: Point3<f32>) {
-        self.graphics.look_at(eye, at);
+        self.graphics.camera_mut().look_at(eye, at);
     }
 
     pub fn set_body_color(&mut self, body: BodyHandle, color: Point3<f32>) {

@@ -6,7 +6,7 @@ use crate::objects::heightfield::HeightField;
 use crate::objects::mesh::Mesh;
 use crate::objects::node::Node;
 use crate::objects::plane::Plane;
-use kiss3d::camera::{ArcBall, Camera, FirstPerson};
+use kiss3d::camera::{ArcBall, Camera};
 use kiss3d::scene::SceneNode;
 use kiss3d::window::Window;
 use na;
@@ -27,17 +27,13 @@ pub struct GraphicsManager {
     b2texture: HashMap<BodyHandle, String>,
     c2color: HashMap<ColliderHandle, Point3<f32>>,
     rays: Vec<Ray<f32>>,
-    arc_ball: ArcBall,
-    first_person: FirstPerson,
-    curr_is_arc_ball: bool,
+    camera: ArcBall,
     aabbs: Vec<SceneNode>,
 }
 
 impl GraphicsManager {
     pub fn new() -> GraphicsManager {
         let arc_ball = ArcBall::new(Point3::new(10.0, 10.0, 10.0), Point3::new(0.0, 0.0, 0.0));
-        let first_person =
-            FirstPerson::new(Point3::new(10.0, 10.0, 10.0), Point3::new(0.0, 0.0, 0.0));
 
         let mut rng: XorShiftRng = SeedableRng::from_seed([0; 16]);
 
@@ -47,9 +43,7 @@ impl GraphicsManager {
         }
 
         GraphicsManager {
-            arc_ball,
-            first_person,
-            curr_is_arc_ball: true,
+            camera: arc_ball,
             rand: rng,
             b2sn: HashMap::new(),
             b2color: HashMap::new(),
@@ -454,37 +448,12 @@ impl GraphicsManager {
     //     }
     // }
 
-    pub fn switch_cameras(&mut self) {
-        if self.curr_is_arc_ball {
-            self.first_person
-                .look_at(self.arc_ball.eye(), self.arc_ball.at());
-        } else {
-            self.arc_ball
-                .look_at(self.first_person.eye(), self.first_person.at());
-        }
-
-        self.curr_is_arc_ball = !self.curr_is_arc_ball;
+    pub fn camera(&self) -> &ArcBall {
+        &self.camera
     }
-
-    pub fn camera<'a>(&'a self) -> &'a Camera {
-        if self.curr_is_arc_ball {
-            &self.arc_ball as &'a Camera
-        } else {
-            &self.first_person as &'a Camera
-        }
-    }
-
-    pub fn camera_mut<'a>(&'a mut self) -> &'a mut Camera {
-        if self.curr_is_arc_ball {
-            &mut self.arc_ball as &'a mut Camera
-        } else {
-            &mut self.first_person as &'a mut Camera
-        }
-    }
-
-    pub fn look_at(&mut self, eye: Point3<f32>, at: Point3<f32>) {
-        self.arc_ball.look_at(eye, at);
-        self.first_person.look_at(eye, at);
+    
+    pub fn camera_mut(&mut self) -> &mut ArcBall {
+        &mut self.camera
     }
 
     pub fn body_nodes(&self, handle: BodyHandle) -> Option<&Vec<Node>> {
