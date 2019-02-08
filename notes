@@ -14,3 +14,5 @@ TODO
 - Let's make it possible to adjust various constants without recompiling
 - Accomodate various computation speeds. Cycle through display of population and show for only the
   simulation period, until a new generation is ready.
+- Encode bot's genome in a qr code and use it to texture the top of the bot so that folks can
+  share a bot by screenshotting
