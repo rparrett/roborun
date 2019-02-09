@@ -17,7 +17,8 @@ use ncollide3d::transformation;
 use ncollide3d::world::CollisionGroups;
 use nphysics3d::object::{BodyHandle, BodyPartHandle, ColliderAnchor, ColliderHandle};
 use nphysics3d::world::World;
-use rand::{Rng, SeedableRng, XorShiftRng};
+use rand::{Rng, SeedableRng};
+use rand_xorshift::XorShiftRng;
 use std::collections::HashMap;
 
 pub struct GraphicsManager {
