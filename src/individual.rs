@@ -39,8 +39,8 @@ impl Individual {
 
         self.genes[i] *= rng.gen_range(1.0 - mutation_magnitude, 1.0 + mutation_magnitude);
 
-        if self.genes[i] > 1.0 {
-            self.genes[i] = 1.0;
+        if self.genes[i] > 1.0 - std::f32::EPSILON {
+            self.genes[i] = 1.0 - std::f32::EPSILON;
         }
         if self.genes[i] < 0.0 {
             self.genes[i] = 0.0;
