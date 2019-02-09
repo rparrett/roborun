@@ -93,6 +93,11 @@ impl Individual {
 }
 
 fn round_down_to_multiple(num: usize, multiple: usize) -> usize {
+    // we don't want zero
+    if num <= multiple {
+        return multiple;
+    }
+
     let rem = num % multiple;
     if rem != 0 {
         return num - rem;
