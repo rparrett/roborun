@@ -9,7 +9,7 @@ TODO
 - Surely I can hack together a simple circle shadow based on the body y vector
  - Or find some other way to make the lighting look less weird
 - Show user a fun data visualization
-- Better textures. Fine some way to not clamp to both edges.
+- Better textures. Find some way to not clamp to both edges.
 - Add additional interesting robot variants
 - Let's make it possible to adjust various constants without recompiling
 - Accomodate various computation speeds. Cycle through display of population and show for only the
