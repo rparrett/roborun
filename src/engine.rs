@@ -6,7 +6,7 @@ use crate::objects::heightfield::HeightField;
 use crate::objects::mesh::Mesh;
 use crate::objects::node::Node;
 use crate::objects::plane::Plane;
-use kiss3d::camera::{ArcBall, Camera};
+use kiss3d::camera::ArcBall;
 use kiss3d::scene::SceneNode;
 use kiss3d::window::Window;
 use na;

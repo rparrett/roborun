@@ -1,9 +1,9 @@
 use crate::individual::Individual;
 use crate::population::Population;
 use crate::robot::Robot;
-use na::{Isometry3, Point3, Vector3};
-use ncollide3d::shape::{Cuboid, Cylinder, ShapeHandle};
-use nphysics3d::object::{BodyHandle, ColliderDesc};
+use na::Vector3;
+use ncollide3d::shape::{Cuboid, ShapeHandle};
+use nphysics3d::object::{ColliderDesc};
 use nphysics3d::world::World;
 
 pub struct GenerationStats {

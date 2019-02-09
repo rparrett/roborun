@@ -48,7 +48,7 @@ impl Box {
         }
 
         res.gfx.set_color(color.x, color.y, color.z);
-        if (!texture.is_empty()) {
+        if !texture.is_empty() {
             res.gfx.set_texture_with_name(texture.as_str())
         }
 

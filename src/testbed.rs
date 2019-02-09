@@ -1,6 +1,3 @@
-use num::Bounded;
-use std::collections::HashMap;
-use std::env;
 use std::mem;
 use std::path::Path;
 use std::rc::Rc;
@@ -11,22 +8,16 @@ use crate::engine::GraphicsManager;
 use crate::robot::Robot;
 use crate::robot::fourdof::Fourdof;
 use crate::world_owner::WorldOwner;
-use itertools::join;
-use kiss3d::camera::{ArcBall, Camera};
-use kiss3d::event::{Action, Key, Modifiers, WindowEvent};
+use kiss3d::camera::Camera;
+use kiss3d::event::{Action, Key, WindowEvent};
 use kiss3d::light::Light;
 use kiss3d::loader::obj;
 use kiss3d::planar_camera::PlanarCamera;
 use kiss3d::post_processing::PostProcessingEffect;
 use kiss3d::text::Font;
 use kiss3d::window::{State, Window};
-use na::{self, Point2, Point3, Vector3};
-use ncollide3d::query::{self, Ray};
-use ncollide3d::utils::GenerationalId;
-use ncollide3d::world::CollisionGroups;
-use nphysics3d::joint::{ConstraintHandle, MouseConstraint};
-use nphysics3d::math::ForceType;
-use nphysics3d::object::{BodyHandle, BodyPartHandle, ColliderHandle};
+use na::{self, Point2, Point3};
+use nphysics3d::object::{BodyHandle, ColliderHandle};
 use nphysics3d::world::World;
 
 #[derive(PartialEq)]

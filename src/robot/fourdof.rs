@@ -1,6 +1,5 @@
 use crate::actuator::Actuator;
 use crate::individual::Individual;
-use crate::robot::Robot;
 use itertools::Itertools;
 use na::{Isometry3, Point3, Unit, Vector3};
 use ncollide3d::shape::{Cuboid, ShapeHandle};
