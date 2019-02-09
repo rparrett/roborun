@@ -9,11 +9,13 @@ pub struct Individual {
 
 impl Individual {
     pub fn random(min: i32, max: i32) -> Individual {
+        let alignment = 3;
+
         let mut rng = OsRng::new().unwrap();
 
         let mut genes: Vec<f32> = Vec::new();
 
-        let num: i32 = rng.gen_range(min, max + 1);
+        let num = round_down_to_multiple(rng.gen_range(min, max + 1) as usize, alignment);
 
         for _ in 0..num {
             let gene: f32 = rng.gen_range(0.0, 1.0);
@@ -71,20 +73,26 @@ impl Individual {
         let mut child = (*parent_a).clone();
         child.fitness = 0.0;
 
-        let take_half = round_down_to_multiple(parent_b.genes.len() / 2, alignment);
-        let take_start = round_down_to_multiple(rng.gen_range(0, take_half), alignment);
+        let mut take_num = round_down_to_multiple(parent_b.genes.len() / 2, alignment);
+        if take_num < alignment {
+            take_num = alignment;
+        }
+        let take_start = round_down_to_multiple(rng.gen_range(0, take_num), alignment);
 
-        let give_half = round_down_to_multiple(child.genes.len() / 2, alignment);
-        let give_start = round_down_to_multiple(rng.gen_range(0, give_half), alignment);
-
+        let mut give_num = round_down_to_multiple(child.genes.len() / 2, alignment);
+        if give_num < alignment {
+            give_num = alignment;
+        }
+        let give_start = round_down_to_multiple(rng.gen_range(0, give_num), alignment);
+       
         child.genes.splice(
-            give_start..(give_start + give_half),
+            give_start..(give_start + give_num),
             (*parent_b)
                 .genes
                 .iter()
                 .cloned()
                 .skip(take_start)
-                .take(take_half),
+                .take(take_num),
         );
         child.mutate();
 
@@ -93,11 +101,6 @@ impl Individual {
 }
 
 fn round_down_to_multiple(num: usize, multiple: usize) -> usize {
-    // we don't want zero
-    if num <= multiple {
-        return multiple;
-    }
-
     let rem = num % multiple;
     if rem != 0 {
         return num - rem;
