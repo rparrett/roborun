@@ -1,5 +1,6 @@
 use crate::actuator::Actuator;
 use crate::individual::Individual;
+use crate::robot::Robot;
 use itertools::Itertools;
 use na::{Isometry3, Point3, Unit, Vector3};
 use ncollide3d::shape::{Cuboid, ShapeHandle};
@@ -24,16 +25,30 @@ impl Actuation {
     }
 }
 
-pub struct Robot {
-    pub body: BodyHandle,
+pub struct Fourdof {
+    pub body: Option<BodyHandle>,
     actuators: Vec<Actuator>,
     time: f32,
     actuations: Vec<Actuation>,
     current_actuation: usize,
 }
 
-impl Robot {
-    pub fn spawn(world: &mut World<f32>) -> Robot {
+impl Fourdof {
+    pub fn new() -> Fourdof {
+        Fourdof {
+            body: None,
+            actuators: Vec::new(),
+            time: 0.0,
+            actuations: Vec::new(),
+            current_actuation: 0
+        }
+    }
+
+    pub fn body_handle(&self) -> Option<BodyHandle> {
+        self.body
+    }
+
+    pub fn spawn(&mut self, world: &mut World<f32>) {
         let mut id: usize = 0;
 
         let body_shape = ShapeHandle::new(Cuboid::new(Vector3::new(4.0, 1.0, 4.0)));
@@ -103,9 +118,12 @@ impl Robot {
         let mut actuator_d = Actuator::new(body_handle, id);
         actuator_d.set_name("leg_d");
 
-        let mut actuators = vec![actuator_a, actuator_b, actuator_c, actuator_d];
+        self.actuators.push(actuator_a);
+        self.actuators.push(actuator_b);
+        self.actuators.push(actuator_c);
+        self.actuators.push(actuator_d);
 
-        for a in actuators.iter_mut() {
+        for a in self.actuators.iter_mut() {
             a.set_max_angle(1.5);
             a.set_min_angle(-0.2);
             a.set_max_torque(160.0);
@@ -113,44 +131,41 @@ impl Robot {
             a.setup(world);
         }
 
-        Robot {
-            body: body_handle,
-            actuators: actuators,
-            time: 0.0,
-            actuations: vec![
-                Actuation::new(0, 1.0, -0.1),
-                Actuation::new(1, 1.0, -0.1),
-                Actuation::new(2, 1.0, -0.1),
-                Actuation::new(3, 1.0, -0.1),
-                Actuation::new(0, 2.5, 1.0),
-                Actuation::new(1, 2.5, 1.0),
-                Actuation::new(2, 2.5, 1.0),
-                Actuation::new(3, 2.5, 1.0),
-            ],
-            current_actuation: 0,
-        }
+        self.body = Some(body_handle);
+
+        // TODO: These default actuations for testing should probably
+        // be replaced by a default individual with the appropriate
+        // genes.
+        
+        self.actuations.push(Actuation::new(0, 1.0, -0.1));
+        self.actuations.push(Actuation::new(1, 1.0, -0.1));
+        self.actuations.push(Actuation::new(2, 1.0, -0.1));
+        self.actuations.push(Actuation::new(3, 1.0, -0.1));
+        self.actuations.push(Actuation::new(0, 2.5, 1.0));
+        self.actuations.push(Actuation::new(1, 2.5, 1.0));
+        self.actuations.push(Actuation::new(2, 2.5, 1.0));
+        self.actuations.push(Actuation::new(3, 2.5, 1.0));
     }
 
-    pub fn from_individual(individual: &Individual, world: &mut World<f32>) -> Robot {
-        let mut robot = Robot::spawn(world);
+    pub fn spawn_individual(&mut self, individual: &Individual, world: &mut World<f32>) {
+        self.spawn(world);
 
-        robot.actuations.clear();
+        self.actuations.clear();
 
         for (a, b, c) in individual.genes.iter().tuples::<(_, _, _)>() {
-            robot.actuations.push(Actuation::new(
-                (a * robot.actuators.len() as f32) as usize,
+            self.actuations.push(Actuation::new(
+                (a * self.actuators.len() as f32) as usize,
                 b * 5.0,
                 c * 1.7 - 0.2,
             ));
         }
-
-        robot
     }
 
     pub fn step(&mut self, world: &mut World<f32>, elapsed: f32) {
         self.time += elapsed;
 
-        // TODO this seems horrendously ugly
+        // TODO this seems horrendously ugly. Re-evaluate when you are less
+        // bad at rust.
 
         loop {
             if let Some(a) = self.actuations.get(self.current_actuation) {
@@ -193,7 +208,12 @@ impl Robot {
         //
         // maybe it would be good to break ties with genome size or something
 
-        if let Some(b) = world.multibody(self.body).and_then(|mb| mb.link(0)) {
+        let body = match self.body {
+            Some(body) => body,
+            None => return 0.0
+        };
+        
+        if let Some(b) = world.multibody(body).and_then(|mb| mb.link(0)) {
             let p = b.position();
             let t = p.translation;
 

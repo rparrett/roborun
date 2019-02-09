@@ -11,8 +11,10 @@ extern crate time;
 
 mod actuator;
 mod crucible;
+#[allow(dead_code)]
 mod engine;
 mod individual;
+#[allow(dead_code)]
 mod objects;
 mod population;
 mod robot;

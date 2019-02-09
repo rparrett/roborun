@@ -9,6 +9,7 @@ use std::sync::{Arc, RwLock};
 use crate::crucible::{make_world, Crucible};
 use crate::engine::GraphicsManager;
 use crate::robot::Robot;
+use crate::robot::fourdof::Fourdof;
 use crate::world_owner::WorldOwner;
 use itertools::join;
 use kiss3d::camera::{ArcBall, Camera};
@@ -92,7 +93,7 @@ impl Testbed {
             time: 0.0,
             font: Font::from_bytes(include_bytes!("../assets/UbuntuMono-Regular.ttf")).unwrap(),
             running: RunMode::Step,
-            crucible: Crucible::new(),
+            crucible: Crucible::new(|individual, world| { let mut robot = Robot::Fourdof(Fourdof::new()); robot.spawn_individual(individual, world); robot }),
             robot: None,
             robot_colors: robot_colors,
             robot_color: 0,
@@ -224,9 +225,10 @@ impl State for Testbed {
     fn step(&mut self, window: &mut Window) {
         if self.reset {
             let mut world = make_world();
-            let robot = Robot::from_individual(self.crucible.population.best(), &mut world);
-            self.set_body_color(robot.body, self.robot_colors[self.robot_color]);
-            self.set_body_texture(robot.body, "metal".to_string());
+            let mut robot = Robot::Fourdof(Fourdof::new());
+            robot.spawn_individual(self.crucible.population.best(), &mut world);
+            self.set_body_color(robot.body_handle().unwrap(), self.robot_colors[self.robot_color]);
+            self.set_body_texture(robot.body_handle().unwrap(), "metal".to_string());
             self.set_body_color(BodyHandle::ground(), Point3::new(0.5, 0.5, 0.5));
             self.set_body_texture(BodyHandle::ground(), "floor".to_string());
             self.robot_color += 1;

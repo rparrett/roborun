@@ -24,13 +24,16 @@ pub struct Crucible {
     elapsed: f32,
     pub last_best: Individual,
     pub stats: Vec<GenerationStats>,
+    build_robot: Callback
 }
 
+type Callback = Box<Fn(&Individual, &mut World<f32>) -> Robot>;
+
 impl Crucible {
-    pub fn new() -> Crucible {
+    pub fn new<F: Fn(&Individual, &mut World<f32>) -> Robot + 'static>(build_robot: F) -> Crucible {
         let population = Population::random(100);
         let mut world = make_world();
-        let robot = Robot::from_individual(&population.individuals[0], &mut world);
+        let robot = build_robot(&population.individuals[0], &mut world);
         let last_best = population.individuals[0].clone();
 
         Crucible {
@@ -44,16 +47,14 @@ impl Crucible {
             elapsed: 0.0,
             last_best: last_best,
             stats: Vec::new(),
+            build_robot: Box::new(build_robot)
         }
     }
 
     pub fn step(&mut self) {
         if self.step == 0 {
             self.world = make_world();
-            self.robot = Robot::from_individual(
-                &self.population.individuals[self.individual],
-                &mut self.world,
-            );
+            self.robot = (self.build_robot)(&self.population.individuals[self.individual], &mut self.world);
         }
 
         self.robot.step(&mut self.world, self.elapsed);
