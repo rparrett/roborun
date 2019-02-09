@@ -5,7 +5,7 @@ use std::sync::{Arc, RwLock};
 
 use crate::crucible::{make_world, Crucible};
 use crate::engine::GraphicsManager;
-use crate::robot::eightdof::Eightdof;
+use crate::robot::mechadon::Mechadon;
 use crate::robot::fourdof::Fourdof;
 use crate::robot::Robot;
 use crate::world_owner::WorldOwner;
@@ -86,7 +86,7 @@ impl Testbed {
             font: Font::from_bytes(include_bytes!("../assets/UbuntuMono-Regular.ttf")).unwrap(),
             running: RunMode::Step,
             crucible: Crucible::new(|individual, world| {
-                let mut robot = Robot::Eightdof(Eightdof::new());
+                let mut robot = Robot::Mechadon(Mechadon::new());
                 robot.spawn_individual(individual, world);
                 robot
             }),
@@ -221,7 +221,7 @@ impl State for Testbed {
     fn step(&mut self, window: &mut Window) {
         if self.reset {
             let mut world = make_world();
-            let mut robot = Robot::Eightdof(Eightdof::new());
+            let mut robot = Robot::Mechadon(Mechadon::new());
             robot.spawn_individual(self.crucible.population.best(), &mut world);
             self.set_body_color(
                 robot.body_handle().unwrap(),

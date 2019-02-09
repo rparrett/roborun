@@ -24,7 +24,7 @@ impl Actuation {
     }
 }
 
-pub struct Eightdof {
+pub struct Mechadon {
     pub body: Option<BodyHandle>,
     actuators: Vec<Actuator>,
     time: f32,
@@ -32,9 +32,9 @@ pub struct Eightdof {
     current_actuation: usize,
 }
 
-impl Eightdof {
-    pub fn new() -> Eightdof {
-        Eightdof {
+impl Mechadon {
+    pub fn new() -> Mechadon {
+        Mechadon {
             body: None,
             actuators: Vec::new(),
             time: 0.0,
@@ -48,9 +48,14 @@ impl Eightdof {
     }
 
     pub fn spawn(&mut self, world: &mut World<f32>) {
+        let leg_max_angle = 1.5;
+        let leg_min_angle = -0.2;
+        let body_max_angle = 0.78;
+        let body_min_angle = -0.78;
+
         let mut id: usize = 0;
 
-        let body_shape = ShapeHandle::new(Cuboid::new(Vector3::new(4.0, 1.0, 4.0)));
+        let body_shape = ShapeHandle::new(Cuboid::new(Vector3::new(2.0, 1.0, 4.0)));
         let body_pos = Isometry3::new(Vector3::y() * 11.0, na::zero());
         let body_joint = FreeJoint::new(body_pos);
         let body_collider = ColliderDesc::new(body_shape).density(0.5);
@@ -60,35 +65,78 @@ impl Eightdof {
         let body_part_handle = body.root().part_handle();
         id += 1;
 
+        let sub_body_a_shape = ShapeHandle::new(Cuboid::new(Vector3::new(2.0, 1.0, 4.0)));
+        let sub_body_a_collider = ColliderDesc::new(sub_body_a_shape).density(0.5);
+        let sub_body_a_joint = RevoluteJoint::new(Vector3::x_axis(), 0.0);
+        let sub_body_a = MultibodyDesc::new(sub_body_a_joint)
+            .collider(&sub_body_a_collider)
+            .body_shift(Vector3::new(0.0, 0.0, 0.0))
+            .parent_shift(Vector3::new(5.0, 0.0, 0.0))
+            .build_with_parent(body_part_handle, world)
+            .unwrap();
+
+        sub_body_a.set_name("sub_body_a".to_string());
+        let sub_body_a_handle = sub_body_a.part_handle();
+        let mut actuator_b_a = Actuator::new(body_handle, id);
+        actuator_b_a.set_name("sub_body_a");
+        actuator_b_a.set_max_angle(body_max_angle);
+        actuator_b_a.set_min_angle(body_min_angle);
+        id += 1;
+        
+        let sub_body_b_shape = ShapeHandle::new(Cuboid::new(Vector3::new(2.0, 1.0, 4.0)));
+        let sub_body_b_collider = ColliderDesc::new(sub_body_b_shape).density(0.5);
+        let sub_body_b_joint = RevoluteJoint::new(Vector3::x_axis(), 0.0);
+        let sub_body_b = MultibodyDesc::new(sub_body_b_joint)
+            .collider(&sub_body_b_collider)
+            .body_shift(Vector3::new(0.0, 0.0, 0.0))
+            .parent_shift(Vector3::new(-5.0, 0.0, 0.0))
+            .build_with_parent(body_part_handle, world)
+            .unwrap();
+        sub_body_b.set_name("sub_body_b".to_string());
+        let sub_body_b_handle = sub_body_b.part_handle();
+        let mut actuator_b_b = Actuator::new(body_handle, id);
+        actuator_b_b.set_name("sub_body_b");
+        actuator_b_b.set_max_angle(body_max_angle);
+        actuator_b_b.set_min_angle(body_min_angle);
+        id += 1;
+
+        // middle legs
+
         let leg_a_shape = ShapeHandle::new(Cuboid::new(Vector3::new(0.5, 4.0, 0.5)));
-        let leg_a_collider = ColliderDesc::new(leg_a_shape).density(0.5);
-        let leg_a_joint = RevoluteJoint::new(Vector3::z_axis(), 0.0);
+        let leg_a_aollider = ColliderDesc::new(leg_a_shape).density(0.5);
+        let leg_a_joint =
+            RevoluteJoint::new(Unit::new_normalize(Vector3::new(-1.0, 0.0, 0.0)), 0.0);
         MultibodyDesc::new(leg_a_joint)
-            .collider(&leg_a_collider)
+            .collider(&leg_a_aollider)
             .body_shift(Vector3::new(0.0, 4.0, 0.0))
-            .parent_shift(Vector3::new(4.0, -2.0, 0.0))
+            .parent_shift(Vector3::new(0.0, -2.0, 4.0))
             .build_with_parent(body_part_handle, world)
             .unwrap()
             .set_name("leg_a".to_string());
         let mut actuator_a = Actuator::new(body_handle, id);
         actuator_a.set_name("leg_a");
+        actuator_a.set_max_angle(leg_max_angle);
+        actuator_a.set_min_angle(leg_min_angle);
         id += 1;
 
         let leg_b_shape = ShapeHandle::new(Cuboid::new(Vector3::new(0.5, 4.0, 0.5)));
-        let leg_b_collider = ColliderDesc::new(leg_b_shape).density(0.5);
-        let leg_b_joint =
-            RevoluteJoint::new(Unit::new_normalize(Vector3::new(0.0, 0.0, -1.0)), 0.0);
+        let leg_b_aollider = ColliderDesc::new(leg_b_shape).density(0.5);
+        let leg_b_joint = RevoluteJoint::new(Vector3::x_axis(), 0.0);
         MultibodyDesc::new(leg_b_joint)
-            .collider(&leg_b_collider)
+            .collider(&leg_b_aollider)
             .body_shift(Vector3::new(0.0, 4.0, 0.0))
-            .parent_shift(Vector3::new(-4.0, -2.0, 0.0))
+            .parent_shift(Vector3::new(0.0, -2.0, -4.0))
             .build_with_parent(body_part_handle, world)
             .unwrap()
             .set_name("leg_b".to_string());
         let mut actuator_b = Actuator::new(body_handle, id);
         actuator_b.set_name("leg_b");
+        actuator_b.set_max_angle(leg_max_angle);
+        actuator_b.set_min_angle(leg_min_angle);
         id += 1;
 
+        // outer legs
+        
         let leg_c_shape = ShapeHandle::new(Cuboid::new(Vector3::new(0.5, 4.0, 0.5)));
         let leg_c_collider = ColliderDesc::new(leg_c_shape).density(0.5);
         let leg_c_joint =
@@ -97,11 +145,13 @@ impl Eightdof {
             .collider(&leg_c_collider)
             .body_shift(Vector3::new(0.0, 4.0, 0.0))
             .parent_shift(Vector3::new(0.0, -2.0, 4.0))
-            .build_with_parent(body_part_handle, world)
+            .build_with_parent(sub_body_a_handle, world)
             .unwrap()
             .set_name("leg_c".to_string());
         let mut actuator_c = Actuator::new(body_handle, id);
         actuator_c.set_name("leg_c");
+        actuator_c.set_max_angle(leg_max_angle);
+        actuator_c.set_min_angle(leg_min_angle);
         id += 1;
 
         let leg_d_shape = ShapeHandle::new(Cuboid::new(Vector3::new(0.5, 4.0, 0.5)));
@@ -111,20 +161,58 @@ impl Eightdof {
             .collider(&leg_d_collider)
             .body_shift(Vector3::new(0.0, 4.0, 0.0))
             .parent_shift(Vector3::new(0.0, -2.0, -4.0))
-            .build_with_parent(body_part_handle, world)
+            .build_with_parent(sub_body_a_handle, world)
             .unwrap()
             .set_name("leg_d".to_string());
         let mut actuator_d = Actuator::new(body_handle, id);
         actuator_d.set_name("leg_d");
+        actuator_d.set_max_angle(leg_max_angle);
+        actuator_d.set_min_angle(leg_min_angle);
+        id += 1;
+
+        let leg_e_shape = ShapeHandle::new(Cuboid::new(Vector3::new(0.5, 4.0, 0.5)));
+        let leg_e_eollider = ColliderDesc::new(leg_e_shape).density(0.5);
+        let leg_e_joint =
+            RevoluteJoint::new(Unit::new_normalize(Vector3::new(-1.0, 0.0, 0.0)), 0.0);
+        MultibodyDesc::new(leg_e_joint)
+            .collider(&leg_e_eollider)
+            .body_shift(Vector3::new(0.0, 4.0, 0.0))
+            .parent_shift(Vector3::new(0.0, -2.0, 4.0))
+            .build_with_parent(sub_body_b_handle, world)
+            .unwrap()
+            .set_name("leg_e".to_string());
+        let mut actuator_e = Actuator::new(body_handle, id);
+        actuator_e.set_name("leg_e");
+        actuator_e.set_max_angle(leg_max_angle);
+        actuator_e.set_min_angle(leg_min_angle);
+        id += 1;
+
+        let leg_f_shape = ShapeHandle::new(Cuboid::new(Vector3::new(0.5, 4.0, 0.5)));
+        let leg_f_eollider = ColliderDesc::new(leg_f_shape).density(0.5);
+        let leg_f_joint = RevoluteJoint::new(Vector3::x_axis(), 0.0);
+        MultibodyDesc::new(leg_f_joint)
+            .collider(&leg_f_eollider)
+            .body_shift(Vector3::new(0.0, 4.0, 0.0))
+            .parent_shift(Vector3::new(0.0, -2.0, -4.0))
+            .build_with_parent(sub_body_b_handle, world)
+            .unwrap()
+            .set_name("leg_f".to_string());
+        let mut actuator_f = Actuator::new(body_handle, id);
+        actuator_f.set_name("leg_f");
+        actuator_f.set_max_angle(leg_max_angle);
+        actuator_f.set_min_angle(leg_min_angle);
+
+        self.actuators.push(actuator_b_a);
+        self.actuators.push(actuator_b_b);
 
         self.actuators.push(actuator_a);
         self.actuators.push(actuator_b);
         self.actuators.push(actuator_c);
         self.actuators.push(actuator_d);
+        self.actuators.push(actuator_e);
+        self.actuators.push(actuator_f);
 
         for a in self.actuators.iter_mut() {
-            a.set_max_angle(1.5);
-            a.set_min_angle(-0.2);
             a.set_max_torque(160.0);
             a.set_max_velocity(1.0);
             a.setup(world);
@@ -140,10 +228,12 @@ impl Eightdof {
         self.actuations.push(Actuation::new(1, 1.0, -0.1));
         self.actuations.push(Actuation::new(2, 1.0, -0.1));
         self.actuations.push(Actuation::new(3, 1.0, -0.1));
+        self.actuations.push(Actuation::new(4, 1.0, -0.1));
         self.actuations.push(Actuation::new(0, 2.5, 1.0));
         self.actuations.push(Actuation::new(1, 2.5, 1.0));
         self.actuations.push(Actuation::new(2, 2.5, 1.0));
         self.actuations.push(Actuation::new(3, 2.5, 1.0));
+        self.actuations.push(Actuation::new(4, 2.5, 1.0));
     }
 
     pub fn spawn_individual(&mut self, individual: &Individual, world: &mut World<f32>) {
@@ -152,10 +242,13 @@ impl Eightdof {
         self.actuations.clear();
 
         for (a, b, c) in individual.genes.iter().tuples::<(_, _, _)>() {
+            let actuator = (a * self.actuators.len() as f32) as usize;
+            let range = self.actuators[actuator].max_angle - self.actuators[actuator].min_angle;
+
             self.actuations.push(Actuation::new(
-                (a * self.actuators.len() as f32) as usize,
+                actuator,
                 b * 5.0,
-                c * 1.7 - 0.2,
+                c * range - self.actuators[actuator].min_angle,
             ));
         }
     }
