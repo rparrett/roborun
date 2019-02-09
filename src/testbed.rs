@@ -5,9 +5,9 @@ use std::sync::{Arc, RwLock};
 
 use crate::crucible::{make_world, Crucible};
 use crate::engine::GraphicsManager;
-use crate::robot::Robot;
-use crate::robot::fourdof::Fourdof;
 use crate::robot::eightdof::Eightdof;
+use crate::robot::fourdof::Fourdof;
+use crate::robot::Robot;
 use crate::world_owner::WorldOwner;
 use kiss3d::camera::Camera;
 use kiss3d::event::{Action, Key, WindowEvent};
@@ -64,7 +64,7 @@ impl Testbed {
         window.add_texture_from_memory(include_bytes!("../assets/metal.png"), "metal");
 
         let camera = graphics.camera_mut();
-        camera.set_max_pitch(std::f32::consts::PI / 2.0);        
+        camera.set_max_pitch(std::f32::consts::PI / 2.0);
         camera.set_min_dist(10.0);
         camera.set_max_dist(400.0);
 
@@ -85,7 +85,11 @@ impl Testbed {
             time: 0.0,
             font: Font::from_bytes(include_bytes!("../assets/UbuntuMono-Regular.ttf")).unwrap(),
             running: RunMode::Step,
-            crucible: Crucible::new(|individual, world| { let mut robot = Robot::Eightdof(Eightdof::new()); robot.spawn_individual(individual, world); robot }),
+            crucible: Crucible::new(|individual, world| {
+                let mut robot = Robot::Eightdof(Eightdof::new());
+                robot.spawn_individual(individual, world);
+                robot
+            }),
             robot: None,
             robot_colors: robot_colors,
             robot_color: 0,
@@ -146,7 +150,7 @@ impl Testbed {
     pub fn set_body_color(&mut self, body: BodyHandle, color: Point3<f32>) {
         self.graphics.set_body_color(body, color);
     }
-    
+
     pub fn set_body_texture(&mut self, body: BodyHandle, texture: String) {
         self.graphics.set_body_texture(body, texture);
     }
@@ -219,7 +223,10 @@ impl State for Testbed {
             let mut world = make_world();
             let mut robot = Robot::Eightdof(Eightdof::new());
             robot.spawn_individual(self.crucible.population.best(), &mut world);
-            self.set_body_color(robot.body_handle().unwrap(), self.robot_colors[self.robot_color]);
+            self.set_body_color(
+                robot.body_handle().unwrap(),
+                self.robot_colors[self.robot_color],
+            );
             self.set_body_texture(robot.body_handle().unwrap(), "metal".to_string());
             self.set_body_color(BodyHandle::ground(), Point3::new(0.5, 0.5, 0.5));
             self.set_body_texture(BodyHandle::ground(), "floor".to_string());

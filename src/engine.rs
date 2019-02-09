@@ -137,18 +137,17 @@ impl GraphicsManager {
             }
         }
     }
-    
+
     pub fn set_body_texture(&mut self, b: BodyHandle, texture: String) {
         self.b2texture.insert(b, texture);
 
         // TODO. for now, this will only work on objects that haven't been added yet.
         //
-/*        if let Some(ns) = self.b2sn.get_mut(&b) {
+        /*        if let Some(ns) = self.b2sn.get_mut(&b) {
             for n in ns.iter_mut() {
                 n.set_texture(texture)
             }
         }*/
-
     }
 
     pub fn set_collider_color(&mut self, handle: ColliderHandle, color: Point3<f32>) {
@@ -214,7 +213,16 @@ impl GraphicsManager {
 
         // NOTE: not optimal allocation-wise, but it is not critical here.
         let mut new_nodes = Vec::new();
-        self.add_shape(window, id, world, na::one(), shape, color, texture, &mut new_nodes);
+        self.add_shape(
+            window,
+            id,
+            world,
+            na::one(),
+            shape,
+            color,
+            texture,
+            &mut new_nodes,
+        );
 
         {
             let nodes = self.b2sn.entry(key).or_insert_with(Vec::new);
@@ -249,7 +257,16 @@ impl GraphicsManager {
             self.add_capsule(window, object, world, delta, s, color, out)
         } else if let Some(s) = shape.as_shape::<Compound<f32>>() {
             for &(t, ref s) in s.shapes().iter() {
-                self.add_shape(window, object, world, delta * t, s.as_ref(), color, String::new(), out)
+                self.add_shape(
+                    window,
+                    object,
+                    world,
+                    delta * t,
+                    s.as_ref(),
+                    color,
+                    String::new(),
+                    out,
+                )
             }
         } else if let Some(s) = shape.as_shape::<TriMesh<f32>>() {
             self.add_mesh(window, object, world, delta, s, color, out);
@@ -451,7 +468,7 @@ impl GraphicsManager {
     pub fn camera(&self) -> &ArcBall {
         &self.camera
     }
-    
+
     pub fn camera_mut(&mut self) -> &mut ArcBall {
         &mut self.camera
     }

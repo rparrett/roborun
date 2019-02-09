@@ -2,15 +2,15 @@ use crate::individual::Individual;
 use nphysics3d::object::BodyHandle;
 use nphysics3d::world::World;
 
-pub mod fourdof;
 pub mod eightdof;
+pub mod fourdof;
 
-use crate::robot::fourdof::Fourdof;
 use crate::robot::eightdof::Eightdof;
+use crate::robot::fourdof::Fourdof;
 
 pub enum Robot {
     Fourdof(Fourdof),
-    Eightdof(Eightdof)
+    Eightdof(Eightdof),
 }
 
 impl Robot {
@@ -41,7 +41,7 @@ impl Robot {
             Robot::Eightdof(ref robot) => robot.fitness(world),
         }
     }
-    
+
     pub fn body_handle(&self) -> Option<BodyHandle> {
         match *self {
             Robot::Fourdof(ref robot) => robot.body_handle(),

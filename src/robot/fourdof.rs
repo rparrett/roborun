@@ -39,7 +39,7 @@ impl Fourdof {
             actuators: Vec::new(),
             time: 0.0,
             actuations: Vec::new(),
-            current_actuation: 0
+            current_actuation: 0,
         }
     }
 
@@ -135,7 +135,7 @@ impl Fourdof {
         // TODO: These default actuations for testing should probably
         // be replaced by a default individual with the appropriate
         // genes.
-        
+
         self.actuations.push(Actuation::new(0, 1.0, -0.1));
         self.actuations.push(Actuation::new(1, 1.0, -0.1));
         self.actuations.push(Actuation::new(2, 1.0, -0.1));
@@ -209,9 +209,9 @@ impl Fourdof {
 
         let body = match self.body {
             Some(body) => body,
-            None => return 0.0
+            None => return 0.0,
         };
-        
+
         if let Some(b) = world.multibody(body).and_then(|mb| mb.link(0)) {
             let p = b.position();
             let t = p.translation;

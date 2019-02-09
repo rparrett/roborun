@@ -3,7 +3,7 @@ use crate::population::Population;
 use crate::robot::Robot;
 use na::Vector3;
 use ncollide3d::shape::{Cuboid, ShapeHandle};
-use nphysics3d::object::{ColliderDesc};
+use nphysics3d::object::ColliderDesc;
 use nphysics3d::world::World;
 
 pub struct GenerationStats {
@@ -24,7 +24,7 @@ pub struct Crucible {
     elapsed: f32,
     pub last_best: Individual,
     pub stats: Vec<GenerationStats>,
-    build_robot: Callback
+    build_robot: Callback,
 }
 
 type Callback = Box<Fn(&Individual, &mut World<f32>) -> Robot>;
@@ -47,14 +47,17 @@ impl Crucible {
             elapsed: 0.0,
             last_best: last_best,
             stats: Vec::new(),
-            build_robot: Box::new(build_robot)
+            build_robot: Box::new(build_robot),
         }
     }
 
     pub fn step(&mut self) {
         if self.step == 0 {
             self.world = make_world();
-            self.robot = (self.build_robot)(&self.population.individuals[self.individual], &mut self.world);
+            self.robot = (self.build_robot)(
+                &self.population.individuals[self.individual],
+                &mut self.world,
+            );
         }
 
         self.robot.step(&mut self.world, self.elapsed);
