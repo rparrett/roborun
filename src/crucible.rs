@@ -4,6 +4,7 @@ use crate::robot::Robot;
 use na::Vector3;
 use ncollide3d::shape::{Cuboid, ShapeHandle};
 use nphysics3d::object::ColliderDesc;
+use nphysics3d::material::{BasicMaterial, MaterialHandle};
 use nphysics3d::world::World;
 
 pub struct GenerationStats {
@@ -99,8 +100,10 @@ pub fn make_world() -> World<f32> {
     world.set_gravity(Vector3::new(0.0, -9.81, 0.0));
 
     let ground_shape = ShapeHandle::new(Cuboid::new(Vector3::new(100.0, 10.0, 100.0)));
+    let ground_material = BasicMaterial::new(0.3, 0.9); // a somewhat squishy high friction ground
     ColliderDesc::new(ground_shape)
         .translation(Vector3::y() * -10.0)
+        .material(MaterialHandle::new(ground_material))
         .build(&mut world);
 
     return world;
