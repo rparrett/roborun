@@ -54,8 +54,8 @@ impl Mechadon {
     }
 
     pub fn spawn(&mut self, world: &mut World<f32>) {
-        let leg_max_angle = 0.2;
-        let leg_min_angle = -0.2;
+        let leg_max_angle = 0.3;
+        let leg_min_angle = -0.3;
         let body_max_angle = 1.0;
         let body_min_angle = -1.0;
         let density = 1.0;
