@@ -161,30 +161,48 @@ impl Fourdof {
     }
 
     pub fn step(&mut self, world: &mut World<f32>, elapsed: f32) {
+        // Step through our list of desired actuations until our current time
+        // is past the last actuation. Then reset everything.
+        //
+        // It's possible that an actuator could be commanded to multiple
+        // positions within the same time step. In that case, all but the
+        // last are effectively ignored.
+        //
+        // Note: the cycle resets after the last commanded actuation, even if
+        // there is time remaining in the maximum cycle length. This lets bots
+        // achieve a higher frequency of oscillation without explicitly encoding
+        // that frequency in a gene. It would be interesting to try that approach,
+        // because as genomes grow, the effective cycle length trends towards the
+        // maximum.
+        
         self.time += elapsed;
 
-        // TODO this seems horrendously ugly. Re-evaluate when you are less
-        // bad at rust.
-
         loop {
-            if let Some(a) = self.actuations.get(self.current_actuation) {
-                if self.time < a.time {
-                    break;
-                }
+            // This really should never happen, and we could probably just
+            // unwrap.
 
-                if let Some(ab) = self.actuators.get_mut(a.actuator) {
-                    ab.set_position(a.position);
-                } else {
-                    break;
-                }
+            let actuation = self.actuations.get(self.current_actuation);
+            if actuation.is_none() {
+                break;
+            }
+            let actuation = actuation.unwrap();
+
+            if self.time < actuation.time {
+                break;
+            }
+
+            if let Some(actuator) = self.actuators.get_mut(actuation.actuator) {
+                actuator.set_position(actuation.position);
             } else {
                 break;
             }
 
             self.current_actuation += 1;
-            if self.current_actuation > self.actuations.len() - 1 {
+
+            if self.current_actuation >= self.actuations.len() {
                 self.current_actuation = 0;
                 self.time = 0.0;
+
                 break;
             }
         }
