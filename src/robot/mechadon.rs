@@ -24,6 +24,10 @@ impl Actuation {
     }
 }
 
+/// Bot inspired by the "battle bot" mechadon.
+///
+/// The real mechadon was 14dof, and this version seems pretty lame.
+/// See https://www.youtube.com/watch?v=pYSK0h8sR40 @ 54:50 or so.
 pub struct Mechadon {
     pub body: Option<BodyHandle>,
     actuators: Vec<Actuator>,
@@ -48,17 +52,22 @@ impl Mechadon {
     }
 
     pub fn spawn(&mut self, world: &mut World<f32>) {
-        let leg_max_angle = 1.5;
-        let leg_min_angle = -0.2;
-        let body_max_angle = 0.78;
-        let body_min_angle = -0.78;
+        let leg_max_angle = 0.78;
+        let leg_min_angle = -0.4;
+        let body_max_angle = 1.0;
+        let body_min_angle = -1.0;
+        let density = 1.0;
+
+        let leg_offset_z = 6.0;
+        let leg_offset_y = 2.0;
+        let leg_joint_offset_y = 3.0;
 
         let mut id: usize = 0;
 
         let body_shape = ShapeHandle::new(Cuboid::new(Vector3::new(2.0, 1.0, 4.0)));
         let body_pos = Isometry3::new(Vector3::y() * 11.0, na::zero());
         let body_joint = FreeJoint::new(body_pos);
-        let body_collider = ColliderDesc::new(body_shape).density(0.5);
+        let body_collider = ColliderDesc::new(body_shape).density(density);
         let multibody = MultibodyDesc::new(body_joint).collider(&body_collider);
         let body = multibody.build(world);
         let body_handle = body.handle();
@@ -66,7 +75,7 @@ impl Mechadon {
         id += 1;
 
         let sub_body_a_shape = ShapeHandle::new(Cuboid::new(Vector3::new(2.0, 1.0, 4.0)));
-        let sub_body_a_collider = ColliderDesc::new(sub_body_a_shape).density(0.5);
+        let sub_body_a_collider = ColliderDesc::new(sub_body_a_shape).density(density);
         let sub_body_a_joint = RevoluteJoint::new(Vector3::x_axis(), 0.0);
         let sub_body_a = MultibodyDesc::new(sub_body_a_joint)
             .collider(&sub_body_a_collider)
@@ -84,7 +93,7 @@ impl Mechadon {
         id += 1;
         
         let sub_body_b_shape = ShapeHandle::new(Cuboid::new(Vector3::new(2.0, 1.0, 4.0)));
-        let sub_body_b_collider = ColliderDesc::new(sub_body_b_shape).density(0.5);
+        let sub_body_b_collider = ColliderDesc::new(sub_body_b_shape).density(density);
         let sub_body_b_joint = RevoluteJoint::new(Vector3::x_axis(), 0.0);
         let sub_body_b = MultibodyDesc::new(sub_body_b_joint)
             .collider(&sub_body_b_collider)
@@ -103,13 +112,13 @@ impl Mechadon {
         // middle legs
 
         let leg_a_shape = ShapeHandle::new(Cuboid::new(Vector3::new(0.5, 4.0, 0.5)));
-        let leg_a_aollider = ColliderDesc::new(leg_a_shape).density(0.5);
+        let leg_a_collider = ColliderDesc::new(leg_a_shape).density(density);
         let leg_a_joint =
             RevoluteJoint::new(Unit::new_normalize(Vector3::new(-1.0, 0.0, 0.0)), 0.0);
         MultibodyDesc::new(leg_a_joint)
-            .collider(&leg_a_aollider)
-            .body_shift(Vector3::new(0.0, 4.0, 0.0))
-            .parent_shift(Vector3::new(0.0, -2.0, 4.0))
+            .collider(&leg_a_collider)
+            .body_shift(Vector3::new(0.0, leg_joint_offset_y, 0.0))
+            .parent_shift(Vector3::new(0.0, leg_offset_y, leg_offset_z))
             .build_with_parent(body_part_handle, world)
             .unwrap()
             .set_name("leg_a".to_string());
@@ -120,12 +129,12 @@ impl Mechadon {
         id += 1;
 
         let leg_b_shape = ShapeHandle::new(Cuboid::new(Vector3::new(0.5, 4.0, 0.5)));
-        let leg_b_aollider = ColliderDesc::new(leg_b_shape).density(0.5);
+        let leg_b_collider = ColliderDesc::new(leg_b_shape).density(density);
         let leg_b_joint = RevoluteJoint::new(Vector3::x_axis(), 0.0);
         MultibodyDesc::new(leg_b_joint)
-            .collider(&leg_b_aollider)
-            .body_shift(Vector3::new(0.0, 4.0, 0.0))
-            .parent_shift(Vector3::new(0.0, -2.0, -4.0))
+            .collider(&leg_b_collider)
+            .body_shift(Vector3::new(0.0, leg_joint_offset_y, 0.0))
+            .parent_shift(Vector3::new(0.0, leg_offset_y, -1.0 * leg_offset_z))
             .build_with_parent(body_part_handle, world)
             .unwrap()
             .set_name("leg_b".to_string());
@@ -138,13 +147,13 @@ impl Mechadon {
         // outer legs
         
         let leg_c_shape = ShapeHandle::new(Cuboid::new(Vector3::new(0.5, 4.0, 0.5)));
-        let leg_c_collider = ColliderDesc::new(leg_c_shape).density(0.5);
+        let leg_c_collider = ColliderDesc::new(leg_c_shape).density(density);
         let leg_c_joint =
             RevoluteJoint::new(Unit::new_normalize(Vector3::new(-1.0, 0.0, 0.0)), 0.0);
         MultibodyDesc::new(leg_c_joint)
             .collider(&leg_c_collider)
-            .body_shift(Vector3::new(0.0, 4.0, 0.0))
-            .parent_shift(Vector3::new(0.0, -2.0, 4.0))
+            .body_shift(Vector3::new(0.0, leg_joint_offset_y, 0.0))
+            .parent_shift(Vector3::new(0.0, leg_offset_y, leg_offset_z))
             .build_with_parent(sub_body_a_handle, world)
             .unwrap()
             .set_name("leg_c".to_string());
@@ -155,12 +164,12 @@ impl Mechadon {
         id += 1;
 
         let leg_d_shape = ShapeHandle::new(Cuboid::new(Vector3::new(0.5, 4.0, 0.5)));
-        let leg_d_collider = ColliderDesc::new(leg_d_shape).density(0.5);
+        let leg_d_collider = ColliderDesc::new(leg_d_shape).density(density);
         let leg_d_joint = RevoluteJoint::new(Vector3::x_axis(), 0.0);
         MultibodyDesc::new(leg_d_joint)
             .collider(&leg_d_collider)
-            .body_shift(Vector3::new(0.0, 4.0, 0.0))
-            .parent_shift(Vector3::new(0.0, -2.0, -4.0))
+            .body_shift(Vector3::new(0.0, leg_joint_offset_y, 0.0))
+            .parent_shift(Vector3::new(0.0, leg_offset_y, -1.0 * leg_offset_z))
             .build_with_parent(sub_body_a_handle, world)
             .unwrap()
             .set_name("leg_d".to_string());
@@ -171,13 +180,13 @@ impl Mechadon {
         id += 1;
 
         let leg_e_shape = ShapeHandle::new(Cuboid::new(Vector3::new(0.5, 4.0, 0.5)));
-        let leg_e_eollider = ColliderDesc::new(leg_e_shape).density(0.5);
+        let leg_e_eollider = ColliderDesc::new(leg_e_shape).density(density);
         let leg_e_joint =
             RevoluteJoint::new(Unit::new_normalize(Vector3::new(-1.0, 0.0, 0.0)), 0.0);
         MultibodyDesc::new(leg_e_joint)
             .collider(&leg_e_eollider)
-            .body_shift(Vector3::new(0.0, 4.0, 0.0))
-            .parent_shift(Vector3::new(0.0, -2.0, 4.0))
+            .body_shift(Vector3::new(0.0, leg_joint_offset_y, 0.0))
+            .parent_shift(Vector3::new(0.0, leg_offset_y, leg_offset_z))
             .build_with_parent(sub_body_b_handle, world)
             .unwrap()
             .set_name("leg_e".to_string());
@@ -188,12 +197,12 @@ impl Mechadon {
         id += 1;
 
         let leg_f_shape = ShapeHandle::new(Cuboid::new(Vector3::new(0.5, 4.0, 0.5)));
-        let leg_f_eollider = ColliderDesc::new(leg_f_shape).density(0.5);
+        let leg_f_eollider = ColliderDesc::new(leg_f_shape).density(density);
         let leg_f_joint = RevoluteJoint::new(Vector3::x_axis(), 0.0);
         MultibodyDesc::new(leg_f_joint)
             .collider(&leg_f_eollider)
-            .body_shift(Vector3::new(0.0, 4.0, 0.0))
-            .parent_shift(Vector3::new(0.0, -2.0, -4.0))
+            .body_shift(Vector3::new(0.0, leg_joint_offset_y, 0.0))
+            .parent_shift(Vector3::new(0.0, leg_offset_y, -1.0 * leg_offset_z))
             .build_with_parent(sub_body_b_handle, world)
             .unwrap()
             .set_name("leg_f".to_string());
@@ -213,7 +222,7 @@ impl Mechadon {
         self.actuators.push(actuator_f);
 
         for a in self.actuators.iter_mut() {
-            a.set_max_torque(160.0);
+            a.set_max_torque(120.0);
             a.set_max_velocity(1.0);
             a.setup(world);
         }
@@ -248,7 +257,7 @@ impl Mechadon {
             self.actuations.push(Actuation::new(
                 actuator,
                 b * 5.0,
-                c * range - self.actuators[actuator].min_angle,
+                c * range + self.actuators[actuator].min_angle,
             ));
         }
     }
@@ -314,10 +323,10 @@ impl Mechadon {
                 &Point3::new(0.0, 0.0, 0.0),
             );
 
-            let up = p.rotation * Vector3::new(0.0, 1.0, 0.0);
+/*            let up = p.rotation * Vector3::new(0.0, 1.0, 0.0);
             if up[1] < 0.0 {
                 return 0.0;
-            }
+            }*/
 
             return d;
         }
