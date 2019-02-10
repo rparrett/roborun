@@ -79,7 +79,8 @@ impl Population {
                     .by_ref()
                     .take(keep as usize)
                     .choose_multiple(&mut rng, 2);
-                let child = Individual::breed(parents[0], parents[1]);
+                let mut child = Individual::breed(parents[0], parents[1]);
+                child.mutate(mutation_rate);
                 self.individuals.push(child);
             } else {
                 let mut child = self
@@ -89,7 +90,7 @@ impl Population {
                     .choose(&mut rng)
                     .unwrap()
                     .clone();
-                child.mutate();
+                child.mutate(mutation_rate);
                 self.individuals.push(child);
             }
         }
@@ -99,9 +100,7 @@ impl Population {
         }
 
         for i in 0..keep {
-            if rng.gen_range(0.0, 1.0) < mutation_rate {
-                self.individuals[i].mutate();
-            }
+            self.individuals[i].mutate(mutation_rate);
         }
     }
 }

@@ -222,7 +222,7 @@ impl State for Testbed {
         if self.reset {
             let mut world = make_world();
             let mut robot = Robot::Mechadon(Mechadon::new());
-            robot.spawn_individual(self.crucible.population.best(), &mut world);
+            robot.spawn_individual(&self.crucible.last_best, &mut world);
             self.set_body_color(
                 robot.body_handle().unwrap(),
                 self.robot_colors[self.robot_color],

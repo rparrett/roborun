@@ -28,37 +28,26 @@ impl Individual {
         }
     }
 
-    pub fn mutate(&mut self) {
+    pub fn mutate(&mut self, rate: f32) {
         let mut rng = OsRng::new().unwrap();
 
         // TODO: magic
         let mutation_magnitude = 0.2;
-        let remove_chance = 0.2;
-        let add_chance = 0.2;
-        let alignment = 3;
 
         let i = rng.gen_range(0, self.genes.len());
 
-        self.genes[i] *= rng.gen_range(1.0 - mutation_magnitude, 1.0 + mutation_magnitude);
-
-        if self.genes[i] > 1.0 - std::f32::EPSILON {
-            self.genes[i] = 1.0 - std::f32::EPSILON;
-        }
-        if self.genes[i] < 0.0 {
-            self.genes[i] = 0.0;
-        }
-
-        if rng.gen_range(0.0, 1.0) < remove_chance {
-            let i = rng.gen_range(0, self.genes.len() / alignment) * alignment;
-
-            for _ in 0..alignment {
-                self.genes.remove(i);
+        for gene in self.genes.iter_mut() {
+            if rng.gen_range(0.0, 1.0) > rate {
+                continue;
             }
-        }
 
-        if rng.gen_range(0.0, 1.0) < add_chance {
-            for _ in 0..alignment {
-                self.genes.push(rng.gen_range(0.0, 1.0));
+            *gene *= rng.gen_range(1.0 - mutation_magnitude, 1.0 + mutation_magnitude);
+
+            if *gene > 1.0 - std::f32::EPSILON {
+                *gene = 1.0 - std::f32::EPSILON;
+            }
+            if *gene < 0.0 {
+                *gene = 0.0;
             }
         }
 
@@ -94,7 +83,6 @@ impl Individual {
                 .skip(take_start)
                 .take(take_num),
         );
-        child.mutate();
 
         child
     }
