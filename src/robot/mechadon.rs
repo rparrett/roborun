@@ -54,20 +54,20 @@ impl Mechadon {
     }
 
     pub fn spawn(&mut self, world: &mut World<f32>) {
-        let leg_max_angle = 0.78;
-        let leg_min_angle = -0.4;
+        let leg_max_angle = 0.2;
+        let leg_min_angle = -0.2;
         let body_max_angle = 1.0;
         let body_min_angle = -1.0;
         let density = 1.0;
 
-        let leg_offset_z = 6.0;
+        let leg_offset_z = 5.0;
         let leg_offset_y = 2.0;
         let leg_joint_offset_y = 3.0;
 
         let mut id: usize = 0;
 
         let body_shape = ShapeHandle::new(Cuboid::new(Vector3::new(2.0, 1.0, 4.0)));
-        let body_pos = Isometry3::new(Vector3::y() * 11.0, na::zero());
+        let body_pos = Isometry3::new(Vector3::y() * 7.0, na::zero());
         let body_joint = FreeJoint::new(body_pos);
         let body_collider = ColliderDesc::new(body_shape).density(density);
         let multibody = MultibodyDesc::new(body_joint).collider(&body_collider);
@@ -116,7 +116,7 @@ impl Mechadon {
         let leg_a_shape = ShapeHandle::new(Cuboid::new(Vector3::new(0.5, 4.0, 0.5)));
         let leg_a_collider = ColliderDesc::new(leg_a_shape).density(density);
         let leg_a_joint =
-            RevoluteJoint::new(Unit::new_normalize(Vector3::new(-1.0, 0.0, 0.0)), 0.0);
+            RevoluteJoint::new(Unit::new_normalize(Vector3::new(0.0, 0.0, -1.0)), 0.0);
         MultibodyDesc::new(leg_a_joint)
             .collider(&leg_a_collider)
             .body_shift(Vector3::new(0.0, leg_joint_offset_y, 0.0))
@@ -132,7 +132,7 @@ impl Mechadon {
 
         let leg_b_shape = ShapeHandle::new(Cuboid::new(Vector3::new(0.5, 4.0, 0.5)));
         let leg_b_collider = ColliderDesc::new(leg_b_shape).density(density);
-        let leg_b_joint = RevoluteJoint::new(Vector3::x_axis(), 0.0);
+        let leg_b_joint = RevoluteJoint::new(Vector3::z_axis(), 0.0);
         MultibodyDesc::new(leg_b_joint)
             .collider(&leg_b_collider)
             .body_shift(Vector3::new(0.0, leg_joint_offset_y, 0.0))
@@ -151,7 +151,7 @@ impl Mechadon {
         let leg_c_shape = ShapeHandle::new(Cuboid::new(Vector3::new(0.5, 4.0, 0.5)));
         let leg_c_collider = ColliderDesc::new(leg_c_shape).density(density);
         let leg_c_joint =
-            RevoluteJoint::new(Unit::new_normalize(Vector3::new(-1.0, 0.0, 0.0)), 0.0);
+            RevoluteJoint::new(Unit::new_normalize(Vector3::new(0.0, 0.0, -1.0)), 0.0);
         MultibodyDesc::new(leg_c_joint)
             .collider(&leg_c_collider)
             .body_shift(Vector3::new(0.0, leg_joint_offset_y, 0.0))
@@ -167,7 +167,7 @@ impl Mechadon {
 
         let leg_d_shape = ShapeHandle::new(Cuboid::new(Vector3::new(0.5, 4.0, 0.5)));
         let leg_d_collider = ColliderDesc::new(leg_d_shape).density(density);
-        let leg_d_joint = RevoluteJoint::new(Vector3::x_axis(), 0.0);
+        let leg_d_joint = RevoluteJoint::new(Vector3::z_axis(), 0.0);
         MultibodyDesc::new(leg_d_joint)
             .collider(&leg_d_collider)
             .body_shift(Vector3::new(0.0, leg_joint_offset_y, 0.0))
@@ -184,7 +184,7 @@ impl Mechadon {
         let leg_e_shape = ShapeHandle::new(Cuboid::new(Vector3::new(0.5, 4.0, 0.5)));
         let leg_e_eollider = ColliderDesc::new(leg_e_shape).density(density);
         let leg_e_joint =
-            RevoluteJoint::new(Unit::new_normalize(Vector3::new(-1.0, 0.0, 0.0)), 0.0);
+            RevoluteJoint::new(Unit::new_normalize(Vector3::new(0.0, 0.0, -1.0)), 0.0);
         MultibodyDesc::new(leg_e_joint)
             .collider(&leg_e_eollider)
             .body_shift(Vector3::new(0.0, leg_joint_offset_y, 0.0))
@@ -200,7 +200,7 @@ impl Mechadon {
 
         let leg_f_shape = ShapeHandle::new(Cuboid::new(Vector3::new(0.5, 4.0, 0.5)));
         let leg_f_eollider = ColliderDesc::new(leg_f_shape).density(density);
-        let leg_f_joint = RevoluteJoint::new(Vector3::x_axis(), 0.0);
+        let leg_f_joint = RevoluteJoint::new(Vector3::z_axis(), 0.0);
         MultibodyDesc::new(leg_f_joint)
             .collider(&leg_f_eollider)
             .body_shift(Vector3::new(0.0, leg_joint_offset_y, 0.0))
