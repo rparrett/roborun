@@ -69,11 +69,11 @@ impl Testbed {
         camera.set_max_dist(400.0);
 
         let robot_colors = vec![
-            Point3::new(0.557, 0.922, 0.000),
-            Point3::new(1.000, 0.286, 0.000),
-            Point3::new(0.557, 0.922, 0.000),
-            Point3::new(0.565, 0.016, 0.659),
-            Point3::new(0.047, 0.353, 0.651),
+            Point3::new(25.9, 100.0, 25.9) / 100.0,
+            Point3::new(25.9, 100.0, 100.0)  / 100.0,
+            Point3::new(100.0, 25.9, 25.9) / 100.0,
+            Point3::new(100.0, 25.9, 67.8) / 100.0,
+            Point3::new(74.9, 29.8, 100.0) / 100.0
         ];
 
         Testbed {
