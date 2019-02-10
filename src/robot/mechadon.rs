@@ -28,6 +28,8 @@ impl Actuation {
 ///
 /// The real mechadon was 14dof, and this version seems pretty lame.
 /// See https://www.youtube.com/watch?v=pYSK0h8sR40 @ 54:50 or so.
+/// We would need to support multiple angular motors per joint to
+/// accomplish this.
 pub struct Mechadon {
     pub body: Option<BodyHandle>,
     actuators: Vec<Actuator>,
@@ -314,23 +316,25 @@ impl Mechadon {
             None => return 0.0,
         };
 
-        if let Some(b) = world.multibody(body).and_then(|mb| mb.link(0)) {
-            let p = b.position();
-            let t = p.translation;
+        let link = match world.multibody(body).and_then(|mb| mb.link(0)) {
+            Some(link) => link,
+            None => return 0.0,
+        };
 
-            let d = nalgebra::distance(
-                &Point3::new(t.vector[0], 0.0, t.vector[2]),
-                &Point3::new(0.0, 0.0, 0.0),
-            );
+        let pos = link.position();
 
-/*            let up = p.rotation * Vector3::new(0.0, 1.0, 0.0);
-            if up[1] < 0.0 {
-                return 0.0;
-            }*/
-
-            return d;
+        let up = pos.rotation * Vector3::new(0.0, 1.0, 0.0);
+        if up[1] < 0.0 {
+            return 0.0;
         }
 
-        0.0
+        let translation = pos.translation;
+
+        let dist = nalgebra::distance(
+            &Point3::new(translation.vector[0], 0.0, translation.vector[2]),
+            &Point3::new(0.0, 0.0, 0.0),
+        );
+
+        dist
     }
 }
