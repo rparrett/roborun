@@ -73,7 +73,7 @@ impl Individual {
             give_num = alignment;
         }
         let give_start = round_down_to_multiple(rng.gen_range(0, give_num), alignment);
-       
+
         child.genes.splice(
             give_start..(give_start + give_num),
             (*parent_b)

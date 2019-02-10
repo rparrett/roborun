@@ -5,8 +5,8 @@ use std::sync::{Arc, RwLock};
 
 use crate::crucible::{make_world, Crucible};
 use crate::engine::GraphicsManager;
-use crate::robot::mechadon::Mechadon;
 use crate::robot::fourdof::Fourdof;
+use crate::robot::mechadon::Mechadon;
 use crate::robot::Robot;
 use crate::world_owner::WorldOwner;
 use kiss3d::camera::Camera;
@@ -70,10 +70,10 @@ impl Testbed {
 
         let robot_colors = vec![
             Point3::new(25.9, 100.0, 25.9) / 100.0,
-            Point3::new(25.9, 100.0, 100.0)  / 100.0,
+            Point3::new(25.9, 100.0, 100.0) / 100.0,
             Point3::new(100.0, 25.9, 25.9) / 100.0,
             Point3::new(100.0, 25.9, 67.8) / 100.0,
-            Point3::new(74.9, 29.8, 100.0) / 100.0
+            Point3::new(74.9, 29.8, 100.0) / 100.0,
         ];
 
         Testbed {

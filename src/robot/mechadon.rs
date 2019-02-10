@@ -93,7 +93,7 @@ impl Mechadon {
         actuator_b_a.set_max_angle(body_max_angle);
         actuator_b_a.set_min_angle(body_min_angle);
         id += 1;
-        
+
         let sub_body_b_shape = ShapeHandle::new(Cuboid::new(Vector3::new(2.0, 1.0, 4.0)));
         let sub_body_b_collider = ColliderDesc::new(sub_body_b_shape).density(density);
         let sub_body_b_joint = RevoluteJoint::new(Vector3::x_axis(), 0.0);
@@ -147,7 +147,7 @@ impl Mechadon {
         id += 1;
 
         // outer legs
-        
+
         let leg_c_shape = ShapeHandle::new(Cuboid::new(Vector3::new(0.5, 4.0, 0.5)));
         let leg_c_collider = ColliderDesc::new(leg_c_shape).density(density);
         let leg_c_joint =

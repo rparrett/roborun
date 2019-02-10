@@ -2,11 +2,11 @@ use crate::individual::Individual;
 use nphysics3d::object::BodyHandle;
 use nphysics3d::world::World;
 
-pub mod mechadon;
 pub mod fourdof;
+pub mod mechadon;
 
-use crate::robot::mechadon::Mechadon;
 use crate::robot::fourdof::Fourdof;
+use crate::robot::mechadon::Mechadon;
 
 pub enum Robot {
     Fourdof(Fourdof),
