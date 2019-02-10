@@ -263,7 +263,8 @@ impl Mechadon {
             ));
         }
 
-        self.actuations.sort_by(|a,b| a.time.partial_cmp(&b.time).unwrap());
+        self.actuations
+            .sort_by(|a, b| a.time.partial_cmp(&b.time).unwrap());
     }
 
     pub fn step(&mut self, world: &mut World<f32>, elapsed: f32) {
@@ -280,7 +281,7 @@ impl Mechadon {
         // that frequency in a gene. It would be interesting to try that approach,
         // because as genomes grow, the effective cycle length trends towards the
         // maximum.
-        
+
         self.time += elapsed;
 
         loop {

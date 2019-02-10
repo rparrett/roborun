@@ -174,7 +174,7 @@ impl Fourdof {
         // that frequency in a gene. It would be interesting to try that approach,
         // because as genomes grow, the effective cycle length trends towards the
         // maximum.
-        
+
         self.time += elapsed;
 
         loop {
