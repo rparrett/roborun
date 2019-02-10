@@ -4,15 +4,15 @@
 
 TODO
 
-- Show robot ghost from previous generation in a differet color / collision group
- - Is this even a good idea? Could get weird when things get stagnant. Last best unique individual.
+- Show all-time-best robot as a ghost in a different collision group?
+ - kiss3d can't do transparency, but maybe it's possible to render a wireframe.
 - Surely I can hack together a simple circle shadow based on the body y vector
- - Or find some other way to make the lighting look less weird
 - Show user a fun data visualization
 - Better textures. Find some way to not clamp to both edges.
 - Add additional interesting robot variants
+- DRY the bots
 - Let's make it possible to adjust various constants without recompiling
 - Accomodate various computation speeds. Cycle through display of population and show for only the
   simulation period, until a new generation is ready.
-- Encode bot's genome in a qr code and use it to texture the top of the bot so that folks can
-  share a bot by screenshotting
+- Make it possible to share genomes. qr-code? base100? base64
+- Camera should probably follow the bot?
