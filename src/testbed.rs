@@ -18,7 +18,7 @@ use kiss3d::post_processing::PostProcessingEffect;
 use kiss3d::text::Font;
 use kiss3d::window::{State, Window};
 use na::{self, Point2, Point3};
-use nphysics3d::object::{BodyHandle, ColliderHandle};
+use nphysics3d::object::{BodyHandle, BodyPart, ColliderHandle};
 use nphysics3d::world::World;
 
 #[derive(PartialEq)]
@@ -205,6 +205,25 @@ impl Testbed {
         let window = mem::replace(&mut self.window, None).unwrap();
         window.render_loop(self);
     }
+
+    fn update_camera(&mut self) {
+        let robot = match &self.robot {
+            Some(robot) => robot,
+            None => return,
+        };
+
+        let position = match self
+            .world()
+            .get()
+            .multibody(robot.body_handle().unwrap())
+            .and_then(|mb| mb.link(0))
+        {
+            Some(link) => link.position().translation * Point3::origin(),
+            None => Point3::origin(),
+        };
+
+        self.graphics.camera_mut().set_at(position);
+    }
 }
 
 type CameraEffects<'a> = (
@@ -219,6 +238,8 @@ impl State for Testbed {
     }
 
     fn step(&mut self, window: &mut Window) {
+        self.update_camera();
+
         if self.reset {
             let mut world = make_world();
             let mut robot = Robot::Mechadon(Mechadon::new());
