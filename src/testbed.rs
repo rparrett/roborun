@@ -363,7 +363,6 @@ impl State for Testbed {
 }
 
 const CONTROLS: &str = "Left click + drag: rotate the camera.
-Right click + drag: pan the camera.
 Mouse wheel: zoom in/zoom out.
 T: pause/resume simulation.
 S: step simulation.";
