@@ -37,7 +37,7 @@ impl Individual {
         // TODO: maybe we should do a chunked iteration here, and only
         // mutate one aspect of the gene.
         //
-        // we could also randomly remove a gene by keeping a list of 
+        // we could also randomly remove a gene by keeping a list of
         // removed indices and processing them in reverse order.
 
         for gene in self.genes.iter_mut() {

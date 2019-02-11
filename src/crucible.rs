@@ -3,8 +3,8 @@ use crate::population::Population;
 use crate::robot::Robot;
 use na::Vector3;
 use ncollide3d::shape::{Cuboid, ShapeHandle};
-use nphysics3d::object::ColliderDesc;
 use nphysics3d::material::{BasicMaterial, MaterialHandle};
+use nphysics3d::object::ColliderDesc;
 use nphysics3d::world::World;
 
 pub struct GenerationStats {
