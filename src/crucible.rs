@@ -6,7 +6,9 @@ use ncollide3d::shape::{Cuboid, ShapeHandle};
 use nphysics3d::material::{BasicMaterial, MaterialHandle};
 use nphysics3d::object::ColliderDesc;
 use nphysics3d::world::World;
+use serde::Serialize;
 
+#[derive(Clone, Serialize)]
 pub struct GenerationStats {
     pub generation: usize,
     pub avg_fitness: f32,

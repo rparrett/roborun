@@ -15,3 +15,4 @@ time       = "0.1"
 rand       = { version = "0.6", features = ["stdweb"] }
 rand_xorshift = "0.1"
 itertools  = "0.8"
+serde = { version = "1.0", features = ["derive"] }

@@ -224,7 +224,7 @@ impl Mechadon {
         self.actuators.push(actuator_f);
 
         for a in self.actuators.iter_mut() {
-            a.set_max_torque(120.0);
+            a.set_max_torque(60.0);
             a.set_max_velocity(1.0);
             a.setup(world);
         }

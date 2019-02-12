@@ -3,7 +3,7 @@ use std::path::Path;
 use std::rc::Rc;
 use std::sync::{Arc, RwLock};
 
-use crate::crucible::{make_world, Crucible};
+use crate::crucible::{make_world, Crucible, GenerationStats};
 use crate::engine::GraphicsManager;
 use crate::robot::fourdof::Fourdof;
 use crate::robot::mechadon::Mechadon;
@@ -20,6 +20,8 @@ use kiss3d::window::{State, Window};
 use na::{self, Point2, Point3};
 use nphysics3d::object::{BodyHandle, BodyPart, ColliderHandle};
 use nphysics3d::world::World;
+use serde::Serialize;
+use stdweb::web::{document, IParentNode};
 
 #[derive(PartialEq)]
 enum RunMode {
@@ -49,6 +51,16 @@ pub struct Testbed {
 }
 
 type Callbacks = Vec<Box<Fn(&mut WorldOwner, &mut GraphicsManager, f32)>>;
+
+#[derive(Serialize)]
+pub struct StatsForJS {
+    paused: bool,
+    generation: usize,
+    progress: usize,
+    max_progress: usize,
+    generation_stats: Vec<GenerationStats>,
+}
+js_serializable!(StatsForJS);
 
 impl Testbed {
     pub fn new_empty() -> Testbed {
@@ -310,59 +322,26 @@ impl State for Testbed {
             self.running = RunMode::Stop;
         }
 
-        let color = Point3::new(0.0, 0.0, 0.0);
+        // status display
 
-        window.draw_text(
-            &format!(
-                "{:.0}%",
-                self.crucible.individual as f32 / self.crucible.population.num as f32 * 100.0,
-            )[..],
-            &Point2::new(5.0, 5.0),
-            40.0,
-            &self.font,
-            &color,
+        let progress_elem = document().query_selector("#progress").unwrap().unwrap();
+        let progress = format!(
+            "{:.0}%",
+            self.crucible.individual as f32 / self.crucible.population.num as f32 * 100.0,
         );
+        js! {
+            @{progress_elem.as_ref()}.innerHTML = @{progress};
+        };
 
-        if self.running != RunMode::Running {
-            window.draw_text(
-                "(Paused)",
-                &Point2::new(100.0, 5.0),
-                40.0,
-                &self.font,
-                &color,
-            );
-        }
-
-        // TODO can I do this without the intermediate vec? without String?
-        let mut lines: Vec<String> = self
-            .crucible
-            .stats
-            .iter()
-            .rev()
-            .take(5)
-            .map(|x| {
-                format!(
-                    "{:<4} {:>6.2} {:>6.2} {:>6.2}",
-                    x.generation, x.min_fitness, x.avg_fitness, x.max_fitness
-                )
-            })
-            .collect();
-        lines.insert(0, "Gen    Min    Avg    Max".to_string());
-        let status = lines.join("\n");
-
-        window.draw_text(
-            status.as_str(),
-            &Point2::new(5.0, 85.0),
-            40.0,
-            &self.font,
-            &color,
-        );
-
-        window.draw_text(CONTROLS, &Point2::new(5.0, 365.0), 40.0, &self.font, &color);
+        let stats_for_js = StatsForJS {
+            paused: self.running != RunMode::Running,
+            generation: self.crucible.generation,
+            progress: self.crucible.individual,
+            max_progress: self.crucible.population.num,
+            generation_stats: self.crucible.stats.iter().cloned().rev().take(5).collect(),
+        };
+        js! {
+            update(@{stats_for_js});
+        };
     }
 }
-
-const CONTROLS: &str = "Left click + drag: rotate the camera.
-Mouse wheel: zoom in/zoom out.
-T: pause/resume simulation.
-S: step simulation.";

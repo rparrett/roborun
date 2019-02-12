@@ -12,10 +12,87 @@
                 overflow: hidden;
                 background: black;
             }
+            #sidebar {
+                width: 20%;
+                height: 100%;
+                position: absolute;
+                top: 0px;
+                right: 0px;
+                padding: 10px;
+                color: #ddd;
+                opacity: 0.5;
+                background-color: black;
+                font-family: sans-serif;
+            }
+            table {
+                border: 1px solid #ddd;
+                border-collapse: collapse;
+            }
+            td, th {
+                padding: 5px;
+            }
         </style>
     </head>
     <body>
+        <script>
+            function update(data) {
+                let progress = Math.round(data.progress * 100.0 / data.max_progress).toString() + '%';
+                if (data.paused) {
+                    progress = progress + " (Paused)";
+                }
+                document.getElementById('progress').innerHTML = progress;
+
+                document.getElementById('generation').innerHTML = data.generation;
+
+                let table = document.getElementById('generation_stats_body');
+                table.innerHTML = "";
+                
+                for (let i = 0; i < data.generation_stats.length; i++) {
+                    var tr = document.createElement('tr');
+                    table.appendChild(tr);
+                    let td = document.createElement('td');
+                    td.innerHTML = data.generation_stats[i].generation;
+                    tr.appendChild(td);
+                    td = document.createElement('td');
+                    td.innerHTML = data.generation_stats[i].avg_fitness.toFixed(2);
+                    tr.appendChild(td);
+                    td = document.createElement('td');
+                    td.innerHTML = data.generation_stats[i].max_fitness.toFixed(2);
+                    tr.appendChild(td);
+                }
+            } 
+        </script>
         <canvas id="canvas"></canvas>
+        <div id="sidebar">
+            <div id="controls">
+                <h4>Roborun</h4>
+                <p>
+                    Generation <span id="generation"></span>
+                </p>
+                <span id="progress"></span>
+                <h4>Stats</h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Gen</th>
+                            <th>Avg</th>
+                            <th>Max</th>
+                        </tr>
+                    </thead>
+                    <tbody id="generation_stats_body">
+                        <tr>
+                            <td>1</td>
+                            <td>?</td>
+                            <td>?</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <h4>Controls</h4>
+                mouse1: rotate<br/>
+                wheel: zoom<br/>
+                t: pause/resume
+            </div> 
+        </div>
         <script src="roborun.js"></script>
     </body>
 </html>
