@@ -76,6 +76,7 @@ impl Testbed {
         window.add_texture_from_memory(include_bytes!("../assets/metal.png"), "metal");
 
         let camera = graphics.camera_mut();
+        camera.rebind_drag_button(None);
         camera.set_max_pitch(std::f32::consts::PI / 2.0);
         camera.set_min_dist(10.0);
         camera.set_max_dist(400.0);
