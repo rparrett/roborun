@@ -13,7 +13,7 @@
                 background: black;
             }
             #sidebar {
-                width: 20%;
+                width: 140px;
                 height: 100%;
                 position: absolute;
                 top: 0px;
@@ -25,6 +25,7 @@
                 font-family: sans-serif;
             }
             table {
+                width: 100%;
                 border: 1px solid #ddd;
                 border-collapse: collapse;
             }
@@ -34,34 +35,6 @@
         </style>
     </head>
     <body>
-        <script>
-            function update(data) {
-                let progress = Math.round(data.progress * 100.0 / data.max_progress).toString() + '%';
-                if (data.paused) {
-                    progress = progress + " (Paused)";
-                }
-                document.getElementById('progress').innerHTML = progress;
-
-                document.getElementById('generation').innerHTML = data.generation;
-
-                let table = document.getElementById('generation_stats_body');
-                table.innerHTML = "";
-                
-                for (let i = 0; i < data.generation_stats.length; i++) {
-                    var tr = document.createElement('tr');
-                    table.appendChild(tr);
-                    let td = document.createElement('td');
-                    td.innerHTML = data.generation_stats[i].generation;
-                    tr.appendChild(td);
-                    td = document.createElement('td');
-                    td.innerHTML = data.generation_stats[i].avg_fitness.toFixed(2);
-                    tr.appendChild(td);
-                    td = document.createElement('td');
-                    td.innerHTML = data.generation_stats[i].max_fitness.toFixed(2);
-                    tr.appendChild(td);
-                }
-            } 
-        </script>
         <canvas id="canvas"></canvas>
         <div id="sidebar">
             <div id="controls">
@@ -71,6 +44,8 @@
                 </p>
                 <span id="progress"></span>
                 <h4>Stats</h4>
+                <div id="glimmerstrands" style="width: 100%; height: 50px;">
+                </div>
                 <table>
                     <thead>
                         <tr>
@@ -94,5 +69,47 @@
             </div> 
         </div>
         <script src="roborun.js"></script>
+        <script src="glimmerstrands.min.js"></script>
+        <script>
+            let glimmerstrands = new GlimmerStrands(document.getElementById('glimmerstrands'));
+            glimmerstrands.addLine(new Line([], "fill:none;stroke:white;stroke-width:2"));
+            glimmerstrands.addLine(new Line([], "fill:none;stroke:red;stroke-width:2"));
+
+            let lastgen = 1;
+            let best = 0.0;
+
+            function update(data) {
+                let progress = Math.round(data.progress * 100.0 / data.max_progress).toString() + '%';
+                if (data.paused) {
+                    progress = progress + " (Paused)";
+                }
+                document.getElementById('progress').innerHTML = progress;
+
+                document.getElementById('generation').innerHTML = data.generation;
+
+                let table = document.getElementById('generation_stats_body');
+                table.innerHTML = "";
+                
+                if (data.generation != lastgen) {
+                    glimmerstrands.addData([data.generation_stats[0].avg_fitness, data.generation_stats[0].max_fitness]);
+                    glimmerstrands.render();
+                    lastgen = data.generation;
+                }
+
+                for (let i = 0; i < data.generation_stats.length; i++) {
+                    var tr = document.createElement('tr');
+                    table.appendChild(tr);
+                    let td = document.createElement('td');
+                    td.innerHTML = data.generation_stats[i].generation;
+                    tr.appendChild(td);
+                    td = document.createElement('td');
+                    td.innerHTML = data.generation_stats[i].avg_fitness.toFixed(2);
+                    tr.appendChild(td);
+                    td = document.createElement('td');
+                    td.innerHTML = data.generation_stats[i].max_fitness.toFixed(2);
+                    tr.appendChild(td);
+                }
+            } 
+        </script>
     </body>
 </html>
