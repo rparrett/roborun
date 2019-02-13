@@ -15,4 +15,3 @@ TODO
 - Accomodate various computation speeds. Cycle through display of population and show for only the
   simulation period, until a new generation is ready.
 - Make it possible to share genomes. qr-code? base100? base64?
-- Separate JS updates into things that are updated every frame and things that are updated every generation

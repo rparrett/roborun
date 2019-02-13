@@ -53,12 +53,17 @@ pub struct Testbed {
 type Callbacks = Vec<Box<Fn(&mut WorldOwner, &mut GraphicsManager, f32)>>;
 
 #[derive(Serialize)]
+pub struct GenerationStatsForJS {
+    generation: usize,
+    generation_stats: GenerationStats,
+}
+js_serializable!(GenerationStatsForJS);
+
+#[derive(Serialize)]
 pub struct StatsForJS {
     paused: bool,
-    generation: usize,
     progress: usize,
     max_progress: usize,
-    generation_stats: Vec<GenerationStats>,
 }
 js_serializable!(StatsForJS);
 
@@ -325,21 +330,22 @@ impl State for Testbed {
 
         // status display
 
-        let progress_elem = document().query_selector("#progress").unwrap().unwrap();
-        let progress = format!(
-            "{:.0}%",
-            self.crucible.individual as f32 / self.crucible.population.num as f32 * 100.0,
-        );
-        js! {
-            @{progress_elem.as_ref()}.innerHTML = @{progress};
-        };
+        if self.reset == true {
+            if let Some(stats) = self.crucible.stats.last() {
+                let generation_stats_for_js = GenerationStatsForJS {
+                    generation: self.crucible.generation,
+                    generation_stats: stats.clone(),
+                };
+                js! {
+                    update_generation(@{generation_stats_for_js});
+                };
+            }
+        }
 
         let stats_for_js = StatsForJS {
             paused: self.running != RunMode::Running,
-            generation: self.crucible.generation,
             progress: self.crucible.individual,
             max_progress: self.crucible.population.num,
-            generation_stats: self.crucible.stats.iter().cloned().rev().take(5).collect(),
         };
         js! {
             update(@{stats_for_js});
