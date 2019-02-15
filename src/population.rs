@@ -16,7 +16,7 @@ impl Population {
     pub fn new_random(num: usize) -> Population {
         let mut individuals: Vec<Individual> = Vec::new();
         for _ in 0..num {
-            individuals.push(Individual::random(3, 3 * 16)); // TODO magic
+            individuals.push(Individual::random(3, 3 * 16, 3)); // TODO magic
         }
 
         Population {
@@ -98,7 +98,7 @@ impl Population {
         }
 
         for _ in 0..fill {
-            self.individuals.push(Individual::random(3, 3 * 16)); // TODO magic
+            self.individuals.push(Individual::random(3, 3 * 16, 3)); // TODO magic
         }
 
         for i in 0..keep {

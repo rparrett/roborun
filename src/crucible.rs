@@ -34,11 +34,10 @@ type Callback = Box<Fn(&Individual, &mut World<f32>) -> Robot>;
 
 impl Crucible {
     pub fn new<F: Fn(&Individual, &mut World<f32>) -> Robot + 'static>(
-        population_size: usize,
+        population: Population,
         max_step: usize,
         build_robot: F,
     ) -> Crucible {
-        let population = Population::new_random(population_size);
         let mut world = make_world();
         let robot = build_robot(&population.individuals[0], &mut world);
         let last_best = population.individuals[0].clone();

@@ -5,12 +5,11 @@ use rand::Rng;
 pub struct Individual {
     pub genes: Vec<f32>,
     pub fitness: f32,
+    pub alignment: usize
 }
 
 impl Individual {
-    pub fn random(min: i32, max: i32) -> Individual {
-        let alignment = 3;
-
+    pub fn random(min: i32, max: i32, alignment: usize) -> Individual {
         let mut rng = OsRng::new().unwrap();
 
         let mut genes: Vec<f32> = Vec::new();
@@ -23,7 +22,8 @@ impl Individual {
         }
 
         Individual {
-            genes: genes,
+            genes,
+            alignment,
             fitness: 0.0,
         }
     }
@@ -61,22 +61,20 @@ impl Individual {
     pub fn breed(parent_a: &Individual, parent_b: &Individual) -> Individual {
         let mut rng = OsRng::new().unwrap();
 
-        let alignment = 3;
-
         let mut child = (*parent_a).clone();
         child.fitness = 0.0;
 
-        let mut take_num = round_down_to_multiple(parent_b.genes.len() / 2, alignment);
-        if take_num < alignment {
-            take_num = alignment;
+        let mut take_num = round_down_to_multiple(parent_b.genes.len() / 2, child.alignment);
+        if take_num < child.alignment {
+            take_num = child.alignment;
         }
-        let take_start = round_down_to_multiple(rng.gen_range(0, take_num), alignment);
+        let take_start = round_down_to_multiple(rng.gen_range(0, take_num), child.alignment);
 
-        let mut give_num = round_down_to_multiple(child.genes.len() / 2, alignment);
-        if give_num < alignment {
-            give_num = alignment;
+        let mut give_num = round_down_to_multiple(child.genes.len() / 2, child.alignment);
+        if give_num < child.alignment {
+            give_num = child.alignment;
         }
-        let give_start = round_down_to_multiple(rng.gen_range(0, give_num), alignment);
+        let give_start = round_down_to_multiple(rng.gen_range(0, give_num), child.alignment);
 
         child.genes.splice(
             give_start..(give_start + give_num),

@@ -5,6 +5,7 @@ use std::sync::{Arc, RwLock};
 
 use crate::crucible::{make_world, Crucible, GenerationStats};
 use crate::engine::GraphicsManager;
+use crate::population::Population;
 use crate::robot::fourdof::Fourdof;
 use crate::robot::mechadon::Mechadon;
 use crate::robot::Robot;
@@ -121,7 +122,7 @@ impl Testbed {
             time: 0.0,
             font: Font::from_bytes(include_bytes!("../assets/UbuntuMono-Regular.ttf")).unwrap(),
             running: RunMode::Step,
-            crucible: Crucible::new(settings.population, 1500, |individual, world| {
+            crucible: Crucible::new(Population::new_random(settings.population), 1500, |individual, world| {
                 let mut robot = Robot::Mechadon(Mechadon::new());
                 robot.spawn_individual(individual, world);
                 robot
