@@ -41,7 +41,30 @@
                 cursor: pointer;
             }
             #settings {
+                font-size: 0.8em;
                 display: none;
+            }
+            #settings .value {
+                display: block;
+                float: right;
+            }
+            #settings .header::after {
+                content: "";
+                clear: both;
+            }
+            #settings .label {
+                display: block;
+                float: left;
+            }
+            .button {
+                cursor: pointer;
+                background-color: #fff; 
+                border: none;
+                color: #333;
+                padding: 5px 10px;
+                text-align: center;
+                text-decoration: none;
+                display: inline-block;
             }
         </style>
     </head>
@@ -75,18 +98,33 @@
                 </table>
                 <h4 id="toggle_settings" onclick="toggle_settings();">Settings &#x25BE;</h4>
                 <div id="settings" style="display: none;">
-                    Population Size<br/>
-                    <input type="range" name="population">
-                    Mutation Rate<br/>
-                    <input type="range" name="mutation_rate">
-                    Selection Ratio<br/>
-                    <input type="range" name="selection_ratio">
-                    Crossover Ratio<br/>
-                    <input type="range" name="crossover_ratio">
-                    Clone Ratio<br/>
-                    <input type="range" name="crossover_clone_ratio">
-                    <button onclick="save_settings();window.location.reload();">Save</button>
-                    <button onclick="reset_settings();window.location.reload();">Reset</button>
+                    <div>
+                        <div class="label">Population Size</div><div class="value">100</div>
+                        <br style="clear: both;">
+                        <input type="range" name="population">
+                    </div>
+                    <div>
+                        <div class="label">Mutation Rate</div><div class="value"></div>
+                        <br style="clear: both;">
+                        <input type="range" name="mutation_rate">
+                    </div>
+                    <div>
+                        <div class="label">Selection Ratio</div><div class="value"></div>
+                        <br style="clear: both;">
+                        <input type="range" name="selection_ratio">
+                    </div>
+                    <div>
+                        <div class="label">Crossover Ratio</div><div class="value"></div>
+                        <br style="clear: both;">
+                        <input type="range" name="crossover_ratio">
+                    </div>
+                    <div>
+                        <div class="label">Clone Ratio</div><div class="value"></div>
+                        <br style="clear: both;">
+                        <input type="range" name="crossover_clone_ratio">
+                    </div>
+                    <button class="button" onclick="save_settings();window.location.reload();">Save</button>
+                    <button class="button" onclick="reset_settings();window.location.reload();">Reset</button>
                 </div>
                 <h4>Controls</h4>
                 mouse1: rotate<br/>
@@ -110,26 +148,30 @@
             };
 
             let settings = get_settings();
-            
+           
+            function on_slide(value, position) {
+                this.element.parentNode.querySelector('.value').innerHTML = this.value;
+            }
+
             rangesliderJs.default.create(
                 document.querySelector('input[name=population]'),
-                {min:10, max: 1000, value: settings.population, step: 10}
+                {onSlide: on_slide, onInit: on_slide, min:10, max: 1000, value: settings.population, step: 10}
             )
             rangesliderJs.default.create(
                 document.querySelector('input[name=mutation_rate]'),
-                {min:0.0, max: 1.0, value: settings.mutation_rate, step: 0.01}
+                {onSlide: on_slide, onInit: on_slide, min:0.0, max: 1.0, value: settings.mutation_rate, step: 0.01}
             )
             rangesliderJs.default.create(
                 document.querySelector('input[name=selection_ratio]'),
-                {min:0.0, max: 1.0, value: settings.selection_ratio, step: 0.01}
+                {onSlide: on_slide, onInit: on_slide, min:0.0, max: 1.0, value: settings.selection_ratio, step: 0.01}
             )
             rangesliderJs.default.create(
                 document.querySelector('input[name=crossover_ratio]'),
-                {min:0.0, max: 1.0, value: settings.crossover_ratio, step: 0.01}
+                {onSlide: on_slide, onInit: on_slide, min:0.0, max: 1.0, value: settings.crossover_ratio, step: 0.01}
             )
             rangesliderJs.default.create(
                 document.querySelector('input[name=crossover_clone_ratio]'),
-                {min:0.0, max: 1.0, value: settings.crossover_clone_ratio, step: 0.01}
+                {onSlide: on_slide, onInit: on_slide, min:0.0, max: 1.0, value: settings.crossover_clone_ratio, step: 0.01}
             )
 
             function toggle_settings() {
