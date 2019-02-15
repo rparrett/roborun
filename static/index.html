@@ -101,27 +101,27 @@
                     <div>
                         <div class="label">Population Size</div><div class="value">100</div>
                         <br style="clear: both;">
-                        <input type="range" name="population">
+                        <input type="range" parse="int" name="population">
                     </div>
                     <div>
                         <div class="label">Mutation Rate</div><div class="value"></div>
                         <br style="clear: both;">
-                        <input type="range" name="mutation_rate">
+                        <input type="range" parse="float" name="mutation_rate">
                     </div>
                     <div>
                         <div class="label">Selection Ratio</div><div class="value"></div>
                         <br style="clear: both;">
-                        <input type="range" name="selection_ratio">
+                        <input type="range" parse="float" name="selection_ratio">
                     </div>
                     <div>
                         <div class="label">Crossover Ratio</div><div class="value"></div>
                         <br style="clear: both;">
-                        <input type="range" name="crossover_ratio">
+                        <input type="range" parse="float" name="crossover_ratio">
                     </div>
                     <div>
                         <div class="label">Clone Ratio</div><div class="value"></div>
                         <br style="clear: both;">
-                        <input type="range" name="crossover_clone_ratio">
+                        <input type="range" parse="float" name="crossover_clone_ratio">
                     </div>
                     <button class="button" onclick="save_settings();window.location.reload();">Save</button>
                     <button class="button" onclick="reset_settings();window.location.reload();">Reset</button>
@@ -195,18 +195,20 @@
             function save_settings() {
                 let settings = defaultSettings;
 
-                let el = document.querySelector('input[name=population]');
-                if (el) {
-                    settings.population = parseInt(el.value);
-                }
-                el = document.querySelector('input[name=mutation_rate]');
-                if (el) {
-                    settings.mutation_rate = parseFloat(el.value) / 100.0;
-                }
-                el = document.querySelector('input[name=crossover_clone_ratio]');
-                if (el) {
-                    settings.crossover_clone_ratio = parseFloat(el.value) / 100.0;
-                }
+                let sliders = document.querySelectorAll('input[type=range]');
+                sliders.forEach(function(s) {
+                    let name = s.getAttribute('name');
+                    if (!defaultSettings.hasOwnProperty(name)) {
+                        return;
+                    }
+                    let parse = s.getAttribute('parse');
+                    if (parse == 'float') {
+                        settings[name] = parseFloat(s.value);
+                    } else if (parse == 'int') {
+                        settings[name] = parseInt(s.value);
+                    }
+                });
+                
                 store.setItem('settings', JSON.stringify(settings));
             }
 
