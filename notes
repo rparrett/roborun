@@ -16,3 +16,4 @@ TODO
   simulation period, until a new generation is ready.
 - Make it possible to share genomes. qr-code? base100? base64?
 - Should bots be responsible for providing a function that returns a random individual?
+- Why doesn't clippy work?
