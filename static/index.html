@@ -66,6 +66,9 @@
                         </tr>
                     </tbody>
                 </table>
+                <h4>Settings</h4>
+                <input type="range" min="10" max="1000" value="100" name="population">
+                <button onclick="save_settings();window.location.reload();">Save</button>
                 <h4>Controls</h4>
                 mouse1: rotate<br/>
                 wheel: zoom<br/>
@@ -75,6 +78,34 @@
         <script src="roborun.js"></script>
         <script src="glimmerstrands.min.js"></script>
         <script>
+            var store = window.localStorage;
+
+            let defaultSettings = {
+                gravity: -9.81,
+                population: 100,
+                mutation_rate: 0.07,
+                crossover_rate: 0.5,
+            };
+
+            function get_settings() {
+                let settings = store.getItem('settings');
+                if (!settings) {
+                    return defaultSettings;
+                }
+                
+                return JSON.parse(settings);
+            }
+
+            function save_settings() {
+                let settings = defaultSettings;
+
+                let el = document.querySelector('input[name=population]');
+                if (el) {
+                    settings.population = parseInt(el.value);
+                }
+                store.setItem('settings', JSON.stringify(settings));
+            }
+
             let glimmerstrands = new GlimmerStrands(document.getElementById('glimmerstrands'));
             glimmerstrands.addLine(new Line([], "fill:none;stroke:white;stroke-width:2"));
             glimmerstrands.addLine(new Line([], "fill:none;stroke:red;stroke-width:2"));

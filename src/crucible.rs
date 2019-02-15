@@ -33,22 +33,22 @@ pub struct Crucible {
 type Callback = Box<Fn(&Individual, &mut World<f32>) -> Robot>;
 
 impl Crucible {
-    pub fn new<F: Fn(&Individual, &mut World<f32>) -> Robot + 'static>(build_robot: F) -> Crucible {
-        let population = Population::random(100);
+    pub fn new<F: Fn(&Individual, &mut World<f32>) -> Robot + 'static>(population_size: usize, max_step: usize, build_robot: F) -> Crucible {
+        let population = Population::new_random(population_size);
         let mut world = make_world();
         let robot = build_robot(&population.individuals[0], &mut world);
         let last_best = population.individuals[0].clone();
 
         Crucible {
-            population: population,
+            population,
+            max_step,
+            world,
+            robot,
+            last_best,
             generation: 1,
             individual: 0,
             step: 0,
-            max_step: 1500,
-            world: world,
-            robot: robot,
             elapsed: 0.0,
-            last_best: last_best,
             stats: Vec::new(),
             build_robot: Box::new(build_robot),
         }

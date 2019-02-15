@@ -6,18 +6,26 @@ use rand::Rng;
 pub struct Population {
     pub individuals: Vec<Individual>,
     pub num: usize,
+    selection_ratio: f32,
+    crossover_ratio: f32,
+    crossover_clone_ratio: f32,
+    mutation_rate: f32
 }
 
 impl Population {
-    pub fn random(num: usize) -> Population {
+    pub fn new_random(num: usize) -> Population {
         let mut individuals: Vec<Individual> = Vec::new();
         for _ in 0..num {
             individuals.push(Individual::random(3, 3 * 16)); // TODO magic
         }
 
         Population {
-            individuals: individuals,
-            num: num,
+            individuals,
+            num,
+            selection_ratio: 0.2,
+            crossover_ratio: 0.6,
+            crossover_clone_ratio: 0.5,
+            mutation_rate: 0.07
         }
     }
 
@@ -51,14 +59,8 @@ impl Population {
     pub fn cull(&mut self) {
         let mut rng = OsRng::new().unwrap();
 
-        // TODO magic
-        let selection_ratio = 0.2;
-        let crossover_ratio = 0.6;
-        let crossover_clone_ratio = 0.5;
-        let mutation_rate = 0.07;
-
-        let keep = (selection_ratio * self.num as f32) as usize;
-        let breed = (crossover_ratio * self.num as f32) as usize;
+        let keep = (self.selection_ratio * self.num as f32) as usize;
+        let breed = (self.crossover_ratio * self.num as f32) as usize;
         let fill = if breed + keep > self.num {
             0
         } else {
@@ -72,7 +74,7 @@ impl Population {
         for _ in 0..breed {
             // crossover or just clone and mutate
 
-            if rng.gen_range(0.0, 1.0) > crossover_clone_ratio {
+            if rng.gen_range(0.0, 1.0) > self.crossover_clone_ratio {
                 let parents = self
                     .individuals
                     .iter()
@@ -80,7 +82,7 @@ impl Population {
                     .take(keep as usize)
                     .choose_multiple(&mut rng, 2);
                 let mut child = Individual::breed(parents[0], parents[1]);
-                child.mutate(mutation_rate);
+                child.mutate(self.mutation_rate);
                 self.individuals.push(child);
             } else {
                 let mut child = self
@@ -90,7 +92,7 @@ impl Population {
                     .choose(&mut rng)
                     .unwrap()
                     .clone();
-                child.mutate(mutation_rate);
+                child.mutate(self.mutation_rate);
                 self.individuals.push(child);
             }
         }
@@ -100,7 +102,23 @@ impl Population {
         }
 
         for i in 0..keep {
-            self.individuals[i].mutate(mutation_rate);
+            self.individuals[i].mutate(self.mutation_rate);
         }
+    }
+
+    pub fn set_selection_ratio(&mut self, v: f32) {
+        self.selection_ratio = v;
+    }
+
+    pub fn set_crossover_ratio(&mut self, v: f32) {
+        self.selection_ratio = v;
+    }
+
+    pub fn set_crossover_clone_ratio(&mut self, v: f32) {
+        self.crossover_clone_ratio = v;
+    }
+
+    pub fn set_mutation_rate(&mut self, v: f32) {
+        self.mutation_rate = v;
     }
 }

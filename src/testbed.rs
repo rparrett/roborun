@@ -20,8 +20,9 @@ use kiss3d::window::{State, Window};
 use na::{self, Point2, Point3};
 use nphysics3d::object::{BodyHandle, BodyPart, ColliderHandle};
 use nphysics3d::world::World;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use stdweb::web::{document, IParentNode};
+use stdweb::unstable::TryInto;
 
 #[derive(PartialEq)]
 enum RunMode {
@@ -37,6 +38,7 @@ pub struct Testbed {
     nsteps: usize,
     callbacks: Callbacks,
     time: f32,
+    settings: Settings,
 
     font: Rc<Font>,
     running: RunMode,
@@ -67,6 +69,15 @@ pub struct StatsForJS {
 }
 js_serializable!(StatsForJS);
 
+#[derive(Deserialize)]
+pub struct Settings {
+    gravity: f32,
+    population: usize,
+    mutation_rate: f32,
+    crossover_rate: f32,
+}
+js_deserializable!(Settings);
+
 impl Testbed {
     pub fn new_empty() -> Testbed {
         let mut graphics = GraphicsManager::new();
@@ -94,6 +105,11 @@ impl Testbed {
             Point3::new(74.9, 29.8, 100.0) / 100.0,
         ];
 
+        // TODO: Are we racing for this value currently?
+        let settings: Settings = js!(
+            return get_settings();
+        ).try_into().unwrap();
+
         Testbed {
             world: Box::new(Arc::new(RwLock::new(world))),
             callbacks: Vec::new(),
@@ -103,7 +119,7 @@ impl Testbed {
             time: 0.0,
             font: Font::from_bytes(include_bytes!("../assets/UbuntuMono-Regular.ttf")).unwrap(),
             running: RunMode::Step,
-            crucible: Crucible::new(|individual, world| {
+            crucible: Crucible::new(settings.population, 1500, |individual, world| {
                 let mut robot = Robot::Mechadon(Mechadon::new());
                 robot.spawn_individual(individual, world);
                 robot
@@ -113,6 +129,7 @@ impl Testbed {
             robot_color: 0,
             reset: true,
             showing_gen: 1,
+            settings: settings,
         }
     }
 
