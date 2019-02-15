@@ -3,6 +3,67 @@ use rand::rngs::OsRng;
 use rand::seq::IteratorRandom;
 use rand::Rng;
 
+pub struct PopulationBuilder {
+    num: usize,
+    selection_ratio: f32,
+    crossover_ratio: f32,
+    crossover_clone_ratio: f32,
+    mutation_rate: f32,
+}
+
+impl PopulationBuilder {
+    pub fn new() -> PopulationBuilder {
+        PopulationBuilder {
+            num: 100,
+            selection_ratio: 0.2,
+            crossover_ratio: 0.6,
+            crossover_clone_ratio: 0.5,
+            mutation_rate: 0.07,
+        }
+    }
+
+    pub fn size(mut self, v: usize) -> PopulationBuilder {
+        self.num = v;
+        self
+    }
+
+    pub fn selection_ratio(mut self, v: f32) -> PopulationBuilder {
+        self.selection_ratio = v;
+        self
+    }
+
+    pub fn crossover_ratio(mut self, v: f32) -> PopulationBuilder {
+        self.selection_ratio = v;
+        self
+    }
+
+    pub fn crossover_clone_ratio(mut self, v: f32) -> PopulationBuilder {
+        self.crossover_clone_ratio = v;
+        self
+    }
+
+    pub fn mutation_rate(mut self, v: f32) -> PopulationBuilder {
+        self.mutation_rate = v;
+        self
+    }
+
+    pub fn build(self) -> Population {
+        let mut individuals: Vec<Individual> = Vec::new();
+        for _ in 0..self.num {
+            individuals.push(Individual::random(3, 3 * 16, 3)); // TODO magic
+        }
+
+        Population {
+            individuals,
+            num: self.num,
+            selection_ratio: self.selection_ratio,
+            crossover_ratio: self.crossover_ratio,
+            crossover_clone_ratio: self.crossover_clone_ratio,
+            mutation_rate: self.mutation_rate,
+        }
+    }
+}
+
 pub struct Population {
     pub individuals: Vec<Individual>,
     pub num: usize,
@@ -13,22 +74,6 @@ pub struct Population {
 }
 
 impl Population {
-    pub fn new_random(num: usize) -> Population {
-        let mut individuals: Vec<Individual> = Vec::new();
-        for _ in 0..num {
-            individuals.push(Individual::random(3, 3 * 16, 3)); // TODO magic
-        }
-
-        Population {
-            individuals,
-            num,
-            selection_ratio: 0.2,
-            crossover_ratio: 0.6,
-            crossover_clone_ratio: 0.5,
-            mutation_rate: 0.07,
-        }
-    }
-
     pub fn best(&self) -> &Individual {
         self.individuals
             .iter()
@@ -104,21 +149,5 @@ impl Population {
         for i in 0..keep {
             self.individuals[i].mutate(self.mutation_rate);
         }
-    }
-
-    pub fn set_selection_ratio(&mut self, v: f32) {
-        self.selection_ratio = v;
-    }
-
-    pub fn set_crossover_ratio(&mut self, v: f32) {
-        self.selection_ratio = v;
-    }
-
-    pub fn set_crossover_clone_ratio(&mut self, v: f32) {
-        self.crossover_clone_ratio = v;
-    }
-
-    pub fn set_mutation_rate(&mut self, v: f32) {
-        self.mutation_rate = v;
     }
 }

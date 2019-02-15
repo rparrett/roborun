@@ -68,6 +68,8 @@
                 </table>
                 <h4>Settings</h4>
                 <input type="range" min="10" max="1000" value="100" name="population">
+                <input type="range" min="0" max="100" value="100" name="mutation_rate">
+                <input type="range" min="0" max="100" value="100" name="crossover_clone_ratio">
                 <button onclick="save_settings();window.location.reload();">Save</button>
                 <h4>Controls</h4>
                 mouse1: rotate<br/>
@@ -79,12 +81,14 @@
         <script src="glimmerstrands.min.js"></script>
         <script>
             var store = window.localStorage;
-
+    
             let defaultSettings = {
                 gravity: -9.81,
                 population: 100,
                 mutation_rate: 0.07,
-                crossover_rate: 0.5,
+                selection_ratio: 0.2,
+                crossover_ratio: 0.5,
+                crossover_clone_ratio: 0.5,
             };
 
             function get_settings() {
@@ -102,6 +106,14 @@
                 let el = document.querySelector('input[name=population]');
                 if (el) {
                     settings.population = parseInt(el.value);
+                }
+                el = document.querySelector('input[name=mutation_rate]');
+                if (el) {
+                    settings.mutation_rate = parseFloat(el.value) / 100.0;
+                }
+                el = document.querySelector('input[name=crossover_clone_ratio]');
+                if (el) {
+                    settings.crossover_clone_ratio = parseFloat(el.value) / 100.0;
                 }
                 store.setItem('settings', JSON.stringify(settings));
             }

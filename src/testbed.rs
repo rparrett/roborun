@@ -5,7 +5,7 @@ use std::sync::{Arc, RwLock};
 
 use crate::crucible::{make_world, Crucible, GenerationStats};
 use crate::engine::GraphicsManager;
-use crate::population::Population;
+use crate::population::{Population, PopulationBuilder};
 use crate::robot::fourdof::Fourdof;
 use crate::robot::mechadon::Mechadon;
 use crate::robot::Robot;
@@ -75,7 +75,9 @@ pub struct Settings {
     gravity: f32,
     population: usize,
     mutation_rate: f32,
-    crossover_rate: f32,
+    selection_ratio: f32,
+    crossover_ratio: f32,
+    crossover_clone_ratio: f32,
 }
 js_deserializable!(Settings);
 
@@ -113,6 +115,19 @@ impl Testbed {
         .try_into()
         .unwrap();
 
+        let population = PopulationBuilder::new()
+            .mutation_rate(settings.mutation_rate)
+            .crossover_ratio(settings.crossover_ratio)
+            .crossover_clone_ratio(settings.crossover_clone_ratio)
+            .size(settings.population)
+            .build();
+
+        let crucible = Crucible::new(population, 1500, |individual, world| {
+            let mut robot = Robot::Mechadon(Mechadon::new());
+            robot.spawn_individual(individual, world);
+            robot
+        });
+
         Testbed {
             world: Box::new(Arc::new(RwLock::new(world))),
             callbacks: Vec::new(),
@@ -122,17 +137,13 @@ impl Testbed {
             time: 0.0,
             font: Font::from_bytes(include_bytes!("../assets/UbuntuMono-Regular.ttf")).unwrap(),
             running: RunMode::Step,
-            crucible: Crucible::new(Population::new_random(settings.population), 1500, |individual, world| {
-                let mut robot = Robot::Mechadon(Mechadon::new());
-                robot.spawn_individual(individual, world);
-                robot
-            }),
+            crucible,
             robot: None,
-            robot_colors: robot_colors,
+            robot_colors,
             robot_color: 0,
             reset: true,
             showing_gen: 1,
-            settings: settings,
+            settings,
         }
     }
 

@@ -5,7 +5,7 @@ use rand::Rng;
 pub struct Individual {
     pub genes: Vec<f32>,
     pub fitness: f32,
-    pub alignment: usize
+    pub alignment: usize,
 }
 
 impl Individual {
