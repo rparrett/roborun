@@ -21,8 +21,8 @@ use na::{self, Point2, Point3};
 use nphysics3d::object::{BodyHandle, BodyPart, ColliderHandle};
 use nphysics3d::world::World;
 use serde::{Deserialize, Serialize};
-use stdweb::web::{document, IParentNode};
 use stdweb::unstable::TryInto;
+use stdweb::web::{document, IParentNode};
 
 #[derive(PartialEq)]
 enum RunMode {
@@ -108,7 +108,9 @@ impl Testbed {
         // TODO: Are we racing for this value currently?
         let settings: Settings = js!(
             return get_settings();
-        ).try_into().unwrap();
+        )
+        .try_into()
+        .unwrap();
 
         Testbed {
             world: Box::new(Arc::new(RwLock::new(world))),

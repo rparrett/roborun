@@ -9,7 +9,7 @@ pub struct Population {
     selection_ratio: f32,
     crossover_ratio: f32,
     crossover_clone_ratio: f32,
-    mutation_rate: f32
+    mutation_rate: f32,
 }
 
 impl Population {
@@ -25,7 +25,7 @@ impl Population {
             selection_ratio: 0.2,
             crossover_ratio: 0.6,
             crossover_clone_ratio: 0.5,
-            mutation_rate: 0.07
+            mutation_rate: 0.07,
         }
     }
 
