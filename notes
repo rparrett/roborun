@@ -22,4 +22,3 @@ TODO
 - other setting ideas: simulation timestep, friction, mutation magnitude, min/max genome size,
 - it's currently difficult to experiment simultaneously with different configurations due to the way
   settings are saved/loaded.
-- a loading indicator would be nice
