@@ -19,7 +19,7 @@ TODO
 - Why doesn't clippy work?
 - parse=float on sliders isn't necessary. can check to see if step is an integer.
 - various settings do not work when set to extreme values
-- other setting ideas: simulation timestep, friction, mutation magnitude, min/max genome size, bot type,
+- other setting ideas: simulation timestep, friction, mutation magnitude, min/max genome size,
 - it's currently difficult to experiment simultaneously with different configurations due to the way
   settings are saved/loaded.
 - a loading indicator would be nice

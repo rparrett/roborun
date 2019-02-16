@@ -48,4 +48,12 @@ impl Robot {
             Robot::Mechadon(ref robot) => robot.body_handle(),
         }
     }
+
+    pub fn new(name: &str) -> Robot {
+        match name {
+            "mechadon" => Robot::Mechadon(Mechadon::new()),
+            "table" => Robot::Fourdof(Fourdof::new()),
+            _ => Robot::Fourdof(Fourdof::new()),
+        }
+    }
 }

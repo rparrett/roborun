@@ -70,8 +70,9 @@ pub struct StatsForJS {
 }
 js_serializable!(StatsForJS);
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Clone)]
 pub struct Settings {
+    bot: String,
     gravity: f32,
     population: usize,
     mutation_rate: f32,
@@ -122,8 +123,10 @@ impl Testbed {
             .size(settings.population)
             .build();
 
-        let crucible = Crucible::new(population, 1500, |individual, world| {
-            let mut robot = Robot::Mechadon(Mechadon::new());
+        let bot = settings.bot.clone();
+
+        let crucible = Crucible::new(population, 1500, move |individual, world| {
+            let mut robot = Robot::new(bot.as_str());
             robot.spawn_individual(individual, world);
             robot
         });
@@ -291,7 +294,7 @@ impl State for Testbed {
 
         if self.reset {
             let mut world = make_world();
-            let mut robot = Robot::Mechadon(Mechadon::new());
+            let mut robot = Robot::new(self.settings.bot.as_str());
             robot.spawn_individual(&self.crucible.last_best, &mut world);
             self.set_body_color(
                 robot.body_handle().unwrap(),

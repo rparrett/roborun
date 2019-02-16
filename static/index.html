@@ -66,6 +66,39 @@
                 text-decoration: none;
                 display: inline-block;
             }
+            .select {
+                position: relative;
+                margin-top: 5px;
+                margin-bottom: 5px;
+            }
+            select {
+                background-color: #fff;
+                display: inline-block;
+                width: 100%;
+                color: #333;
+                border-radius: 0;
+                outline: none;
+                border: none;
+                -webkit-appearance: none;
+                padding: 0.5em;
+            }
+            .triangle {
+                position: absolute;
+                top: 0.8em;
+                right: .5em;
+                border-top: .4em solid #333;
+                border-right: .4em solid transparent;
+                border-left: .4em solid transparent;
+                border-bottom: .0 transparent;
+                content: '';
+                line-height: 1em;
+                vertical-align: middle;
+                display: inline-block;
+                width: 0;
+                height: 1em;
+                text-align: center;
+                pointer-events: none;
+            }
         </style>
     </head>
     <body>
@@ -98,6 +131,17 @@
                 </table>
                 <h4 id="toggle_settings" onclick="toggle_settings();">Settings &#x25BE;</h4>
                 <div id="settings" style="display: none;">
+                    <div>
+                        <div class="label">Bot</div>
+                        <br style="clear: both;">
+                        <div class="select">
+                            <select name="bot">
+                                <option value="table">Table</option>
+                                <option value="mechadon">Mechadon</option>
+                            </select>
+                            <div class="triangle"></div>
+                        </div>
+                    </div>
                     <div>
                         <div class="label">Population Size</div><div class="value">100</div>
                         <br style="clear: both;">
@@ -139,6 +183,7 @@
             var store = window.localStorage;
     
             let defaultSettings = {
+                bot: 'mechadon',
                 gravity: -9.81,
                 population: 100,
                 mutation_rate: 0.07,
@@ -184,12 +229,21 @@
             }
 
             function get_settings() {
-                let settings = store.getItem('settings');
-                if (!settings) {
+                let stored = store.getItem('settings');
+                if (!stored) {
                     return defaultSettings;
                 }
-                
-                return JSON.parse(settings);
+
+                stored = JSON.parse(stored);
+
+                // don't panic when we add or remove a setting
+               
+                let settings = defaultSettings;
+                Object.keys(stored).forEach(function(key) {
+                    settings[key] = stored[key];
+                });
+               
+                return settings;
             }
 
             function save_settings() {
@@ -207,6 +261,16 @@
                     } else if (parse == 'int') {
                         settings[name] = parseInt(s.value);
                     }
+                });
+
+                let selects = document.querySelectorAll('select');
+                selects.forEach(function(s) {
+                    let name = s.getAttribute('name');
+                    if (!defaultSettings.hasOwnProperty(name)) {
+                        return;
+                    }
+
+                    settings[name] = s.value;
                 });
                 
                 store.setItem('settings', JSON.stringify(settings));
