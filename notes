@@ -1,24 +1,35 @@
-- Docs seem to indicate that you should use rust nightly, but the thing doesn't compile in rust nightly
-- Rust stable seems to work for the most part. (1.32)
-- cargo web start --target=wasm32-unknown-unknown --port=8004 --release
+BUILD
+
+cargo web start --target=wasm32-unknown-unknown --port=8004 --release
 
 TODO
 
-- Show all-time-best robot as a ghost in a different collision group?
- - kiss3d can't do transparency, but maybe it's possible to render a wireframe.
-- Surely I can hack together a simple circle shadow based on the body y vector
+- Some indication of the current-best bot
+  - A ghost/wireframe (no transparency in kiss3d)
+  - A circle on the ground
 - Additional data vis for performance stats
-- Better textures. Find some way to not clamp to both edges.
+- Better textures for bots and arena. Skybox?
+- A simple circle shadow for the bot
 - Add additional interesting robot variants
 - DRY the bots
-- Let's make it possible to adjust various constants without recompiling
-- Accomodate various computation speeds. Cycle through display of population and show for only the
-  simulation period, until a new generation is ready.
-- Make it possible to share genomes. qr-code? base100? base64?
+- Account for various computation speeds and population settings in bot display
+  - We want to show a bot at least for the whole simulation period
+  - If the sim of one generation takes a bit longer than that, it's okay
+  - If the sim of one generation takes a great deal longer than that, it might be less okay
+    - Bot might fall off of the world
+  - If the sim of one generation is shorter than that, what should we display in the mean time?
+- Make it possible to share genomes and replay genomes
+  - QR?
+  - base100?
+  - base64?
 - Should bots be responsible for providing a function that returns a random individual?
-- Why doesn't clippy work?
-- parse=float on sliders isn't necessary. can check to see if step is an integer.
-- various settings do not work when set to extreme values
-- other setting ideas: simulation timestep, friction, mutation magnitude, min/max genome size,
-- it's currently difficult to experiment simultaneously with different configurations due to the way
-  settings are saved/loaded.
+  - Or an IndividualBuilder?
+- Figure out why Clippy isn't working
+- For various settings inputs, we can check if the step value contains a decimal and get rid of the parse attribute
+- Various settings are causing panics at extreme values
+- Setting ideas
+  - Simulation timestep
+  - Friction
+  - Mutation magnitude 
+  - Genome sizemin/max genome size
+- It would be nice if we didn't have to refresh the whole page after changing settings
