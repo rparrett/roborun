@@ -406,6 +406,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 [[package]]
 name = "kiss3d"
 version = "0.18.0"
+source = "git+https://github.com/rparrett/kiss3d.git?branch=rparrett#156abef73511b4bcba36d3b854c48e0d2109407a"
 dependencies = [
  "bitflags 1.0.4 (registry+https://github.com/rust-lang/crates.io-index)",
  "gl 0.11.0 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -881,7 +882,7 @@ name = "roborun"
 version = "0.1.0"
 dependencies = [
  "itertools 0.8.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "kiss3d 0.18.0",
+ "kiss3d 0.18.0 (git+https://github.com/rparrett/kiss3d.git?branch=rparrett)",
  "nalgebra 0.17.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "ncollide3d 0.18.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "nphysics3d 0.10.1 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -1339,6 +1340,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 "checksum itoa 0.4.3 (registry+https://github.com/rust-lang/crates.io-index)" = "1306f3464951f30e30d12373d31c79fbd52d236e5e896fd92f96ec7babbbe60b"
 "checksum jpeg-decoder 0.1.15 (registry+https://github.com/rust-lang/crates.io-index)" = "c8b7d43206b34b3f94ea9445174bda196e772049b9bddbc620c9d29b2d20110d"
 "checksum khronos_api 3.0.0 (registry+https://github.com/rust-lang/crates.io-index)" = "62237e6d326bd5871cd21469323bf096de81f1618cd82cbaf5d87825335aeb49"
+"checksum kiss3d 0.18.0 (git+https://github.com/rparrett/kiss3d.git?branch=rparrett)" = "<none>"
 "checksum lazy_static 1.2.0 (registry+https://github.com/rust-lang/crates.io-index)" = "a374c89b9db55895453a74c1e38861d9deec0b01b405a82516e9d5de4820dea1"
 "checksum libc 0.2.48 (registry+https://github.com/rust-lang/crates.io-index)" = "e962c7641008ac010fa60a7dfdc1712449f29c44ef2d4702394aea943ee75047"
 "checksum libloading 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)" = "9c3ad660d7cb8c5822cd83d10897b0f1f1526792737a179e73896152f85b88c2"

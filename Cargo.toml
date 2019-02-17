@@ -10,7 +10,7 @@ nalgebra = "0.17"
 ncollide3d = "0.18"
 nphysics3d = "0.10"
 num-traits = "0.2"
-kiss3d     = { path = "../kiss3d" }
+kiss3d     = { git = "https://github.com/rparrett/kiss3d.git", branch = "rparrett" }
 time       = "0.1"
 rand       = { version = "0.6", features = ["stdweb"] }
 rand_xorshift = "0.1"
