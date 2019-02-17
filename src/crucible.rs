@@ -38,7 +38,7 @@ impl Crucible {
         max_step: usize,
         build_robot: F,
     ) -> Crucible {
-        let mut world = make_world();
+        let mut world = make_world(false);
         let robot = build_robot(&population.individuals[0], &mut world);
         let last_best = population.individuals[0].clone();
 
@@ -59,7 +59,7 @@ impl Crucible {
 
     pub fn step(&mut self) {
         if self.step == 0 {
-            self.world = make_world();
+            self.world = make_world(false);
             self.robot = (self.build_robot)(
                 &self.population.individuals[self.individual],
                 &mut self.world,
@@ -100,11 +100,18 @@ impl Crucible {
     }
 }
 
-pub fn make_world() -> World<f32> {
+pub fn make_world(for_display: bool) -> World<f32> {
     let mut world = World::new();
     world.set_gravity(Vector3::new(0.0, -9.81, 0.0));
 
-    let ground_shape = ShapeHandle::new(Cuboid::new(Vector3::new(100.0, 10.0, 100.0)));
+    // The behind-the-scenes simulated world should not let the robots fall off, but I
+    // want the displayed robots to have a goal of eventually reaching the edge of the
+    // world and falling off.
+
+    let ground_shape = match for_display {
+        true => ShapeHandle::new(Cuboid::new(Vector3::new(100.0, 10.0, 100.0))),
+        false => ShapeHandle::new(Cuboid::new(Vector3::new(1000.0, 10.0, 1000.0)))
+    };
     let ground_material = BasicMaterial::new(0.3, 0.9); // a somewhat squishy high friction ground
     ColliderDesc::new(ground_shape)
         .translation(Vector3::y() * -10.0)

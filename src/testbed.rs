@@ -293,7 +293,7 @@ impl State for Testbed {
         self.update_camera();
 
         if self.reset {
-            let mut world = make_world();
+            let mut world = make_world(true);
             let mut robot = Robot::new(self.settings.bot.as_str());
             robot.spawn_individual(&self.crucible.last_best, &mut world);
             self.set_body_color(
