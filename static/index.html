@@ -235,6 +235,11 @@
                 document.querySelector('input[name=crossover_clone_ratio]'),
                 {onSlide: on_slide, onInit: on_slide, min:0.0, max: 1.0, value: settings.crossover_clone_ratio, step: 0.01}
             )
+            document.querySelectorAll('select[name=bot] option').forEach(function(el) {
+                if (el.value == settings.bot) {
+                    el.setAttribute('selected', true);
+                }
+            });
 
             function toggle_settings() {
                 let settings = document.getElementById('settings');
