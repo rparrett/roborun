@@ -58,7 +58,10 @@ impl Individual {
         self.fitness = 0.0;
     }
 
-    pub fn one_gap_one_point(parent_a: &Individual, parent_b: &Individual) -> (Individual, Individual) {
+    pub fn one_gap_one_point(
+        parent_a: &Individual,
+        parent_b: &Individual,
+    ) -> (Individual, Individual) {
         let mut rng = OsRng::new().unwrap();
 
         // we could assert(parent_a.alignment == parent_b.alignment)
@@ -73,7 +76,7 @@ impl Individual {
         let diff = len - parent_s.genes.len();
 
         let gap_i = round_down_to_multiple(
-            rng.gen_range(alignment, parent_s.genes.len() - 1),
+            rng.gen_range(0, parent_s.genes.len() - 1),
             alignment,
         );
 
@@ -104,18 +107,22 @@ impl Individual {
         }
 
         let fitness = 0.0;
-        let mut child_a = Individual {
+        let child_a = Individual {
             genes: genes_a,
             fitness,
             alignment,
         };
-        let mut child_b = Individual {
+        let child_b = Individual {
             genes: genes_b,
             fitness,
             alignment,
         };
 
         (child_a, child_b)
+    }
+
+    pub fn one_gap_one_point_genes<T>(a: T, b: T, alignment: usize) -> (T, T) {
+        return (a, b);
     }
 
     pub fn messy_two_point(parent_a: &Individual, parent_b: &Individual) -> Individual {
@@ -165,4 +172,17 @@ fn round_down_to_multiple(num: usize, multiple: usize) -> usize {
     }
 
     num
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn one_gap_one_point_genes_test() {
+        let a: Vec<f32> = Vec::new();
+        let b: Vec<f32> = Vec::new();
+
+        Individual::one_gap_one_point_genes(a, b);
+    }
 }

@@ -76,7 +76,6 @@ pub struct Settings {
     gravity: f32,
     population: usize,
     mutation_rate: f32,
-    selection_rate: f32,
     crossover_rate: f32,
 }
 js_deserializable!(Settings);

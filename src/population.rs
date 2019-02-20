@@ -5,18 +5,18 @@ use rand::Rng;
 
 pub struct PopulationBuilder {
     num: usize,
-    selection_rate: f32,
     crossover_rate: f32,
     mutation_rate: f32,
+    elitist: bool
 }
 
 impl PopulationBuilder {
     pub fn new() -> PopulationBuilder {
         PopulationBuilder {
             num: 100,
-            selection_rate: 0.2,
             crossover_rate: 0.6,
             mutation_rate: 0.07,
+            elitist: true,
         }
     }
 
@@ -25,13 +25,8 @@ impl PopulationBuilder {
         self
     }
 
-    pub fn selection_rate(mut self, v: f32) -> PopulationBuilder {
-        self.selection_rate = v;
-        self
-    }
-
     pub fn crossover_rate(mut self, v: f32) -> PopulationBuilder {
-        self.selection_rate = v;
+        self.crossover_rate = v;
         self
     }
 
@@ -40,8 +35,14 @@ impl PopulationBuilder {
         self
     }
 
+    pub fn elitist(mut self, v: bool) -> PopulationBuilder {
+        self.elitist = v;
+        self
+    }
+
     pub fn build(self) -> Population {
-        let mut individuals: Vec<Individual> = Vec::new();
+        let mut individuals: Vec<Individual> = Vec::with_capacity(self.num);
+
         for _ in 0..self.num {
             individuals.push(Individual::random(3, 3 * 16, 3)); // TODO magic
         }
@@ -49,9 +50,9 @@ impl PopulationBuilder {
         Population {
             individuals,
             num: self.num,
-            selection_rate: self.selection_rate,
             crossover_rate: self.crossover_rate,
             mutation_rate: self.mutation_rate,
+            elitist: self.elitist
         }
     }
 }
@@ -59,9 +60,9 @@ impl PopulationBuilder {
 pub struct Population {
     pub individuals: Vec<Individual>,
     pub num: usize,
-    selection_rate: f32,
     crossover_rate: f32,
     mutation_rate: f32,
+    elitist: bool
 }
 
 impl Population {
@@ -95,33 +96,61 @@ impl Population {
     pub fn cull(&mut self) {
         let mut rng = OsRng::new().unwrap();
 
-        // dumb truncation selection
-
-        let keep = (self.selection_rate * self.num as f32) as usize;
-
-        self.individuals
-            .sort_by(|a, b| b.fitness.partial_cmp(&a.fitness).unwrap());
-        self.individuals.truncate(keep);
-
+        let mut gen: Vec<Individual> = Vec::with_capacity(self.num);
+        
         // crossover (or clone)
-        while self.individuals.len() < self.num {
-            let parents = self
-                .individuals
-                .iter()
-                .by_ref()
-                .take(keep as usize)
-                .choose_multiple(&mut rng, 2);
-
+        while gen.len() < self.num {
+            // TODO magic
+            let indices = self.tournament_select_two(&mut rng, 4);
+            let parents = (&self.individuals.get(indices.0).unwrap(), &self.individuals.get(indices.1).unwrap());
+            
             let mut children = if rng.gen_range(0.0, 1.0) > self.crossover_rate {
-                Individual::one_gap_one_point(parents[0], parents[1])
+                Individual::one_gap_one_point(parents.0, parents.1)
             } else {
-                (parents[0].clone(), parents[1].clone())
+                ((*parents.0).clone(), (*parents.1).clone())
             };
-
+            
             children.0.mutate(self.mutation_rate);
             children.1.mutate(self.mutation_rate);
-            self.individuals.push(children.0);
-            self.individuals.push(children.1);
+            gen.push(children.0);
+            gen.push(children.1);
         }
+
+        if self.elitist {
+            let best = self.individuals
+                .iter()
+                .cloned()
+                .max_by(|(a), (b)| a.fitness.partial_cmp(&b.fitness).unwrap())
+                .unwrap();
+
+            gen[0] = best;
+        }
+
+        self.individuals = gen;
+    }
+
+    pub fn tournament_select_one<R: Rng>(&self, rng: &mut R, size: usize) -> usize {
+        (0..self.num)
+            .choose_multiple(rng, size)
+            .iter()
+            .cloned()
+            .max_by(|a, b| {
+                self.individuals[*a].fitness.partial_cmp(&self.individuals[*b].fitness).unwrap()
+            })
+            .unwrap()
+    }
+
+    pub fn tournament_select_two<R: Rng>(&self, rng: &mut R, size: usize) -> (usize, usize) {
+        let a = self.tournament_select_one(rng, size);
+
+        // inf if population size is 1
+        let b = loop {
+            let next = self.tournament_select_one(rng, size);
+            if next != a {
+                break next;
+            }
+        };
+
+        (a, b)
     }
 }
