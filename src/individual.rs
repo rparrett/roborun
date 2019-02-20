@@ -59,6 +59,14 @@ impl Individual {
     }
 
     pub fn breed(parent_a: &Individual, parent_b: &Individual) -> Individual {
+        // this is a sort of "messy two point recombination" where the first
+        // point is random-ish and the second point is always half the genome
+        // length away from that, while taking care of the "alignment."
+        //
+        // https://journals.plos.org/plosone/article/file?id=10.1371/journal.pone.0209712&type=printable
+        //
+        // suggests that this is probably a terrible way to go about things.
+        
         let mut rng = OsRng::new().unwrap();
 
         let mut child = (*parent_a).clone();
