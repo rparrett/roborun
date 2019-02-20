@@ -76,9 +76,8 @@ pub struct Settings {
     gravity: f32,
     population: usize,
     mutation_rate: f32,
-    selection_ratio: f32,
-    crossover_ratio: f32,
-    crossover_clone_ratio: f32,
+    selection_rate: f32,
+    crossover_rate: f32,
 }
 js_deserializable!(Settings);
 
@@ -118,8 +117,7 @@ impl Testbed {
 
         let population = PopulationBuilder::new()
             .mutation_rate(settings.mutation_rate)
-            .crossover_ratio(settings.crossover_ratio)
-            .crossover_clone_ratio(settings.crossover_clone_ratio)
+            .crossover_rate(settings.crossover_rate)
             .size(settings.population)
             .build();
 

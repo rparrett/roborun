@@ -58,7 +58,7 @@ impl Individual {
         self.fitness = 0.0;
     }
 
-    pub fn one_gap_one_point(parent_a: &Individual, parent_b: &Individual) -> Individual {
+    pub fn one_gap_one_point(parent_a: &Individual, parent_b: &Individual) -> (Individual, Individual) {
         let mut rng = OsRng::new().unwrap();
 
         // we could assert(parent_a.alignment == parent_b.alignment)
@@ -115,9 +115,7 @@ impl Individual {
             alignment,
         };
 
-        // TODO yeah, we want both children obviously.
-        // need to fix up selection first.
-        child_a
+        (child_a, child_b)
     }
 
     pub fn messy_two_point(parent_a: &Individual, parent_b: &Individual) -> Individual {

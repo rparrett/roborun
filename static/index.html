@@ -80,7 +80,7 @@
                 color: #333;
                 padding: 5px 10px;
                 text-align: center;
-                text-decoration: none;
+                text-decoraten: none;
                 display: inline-block;
             }
             .select {
@@ -170,19 +170,14 @@
                         <input type="range" parse="float" name="mutation_rate">
                     </div>
                     <div>
-                        <div class="label">Selection Ratio</div><div class="value"></div>
+                        <div class="label">Selection Rate</div><div class="value"></div>
                         <br style="clear: both;">
-                        <input type="range" parse="float" name="selection_ratio">
+                        <input type="range" parse="float" name="selection_rate">
                     </div>
                     <div>
-                        <div class="label">Crossover Ratio</div><div class="value"></div>
+                        <div class="label">Crossover Rate</div><div class="value"></div>
                         <br style="clear: both;">
-                        <input type="range" parse="float" name="crossover_ratio">
-                    </div>
-                    <div>
-                        <div class="label">Clone Ratio</div><div class="value"></div>
-                        <br style="clear: both;">
-                        <input type="range" parse="float" name="crossover_clone_ratio">
+                        <input type="range" parse="float" name="crossover_rate">
                     </div>
                     <button class="button" onclick="save_settings();window.location.reload();">Save</button>
                     <button class="button" onclick="reset_settings();window.location.reload();">Reset</button>
@@ -204,9 +199,8 @@
                 gravity: -9.81,
                 population: 100,
                 mutation_rate: 0.07,
-                selection_ratio: 0.2,
-                crossover_ratio: 0.5,
-                crossover_clone_ratio: 0.5,
+                selection_rate: 0.2,
+                crossover_rate: 0.5,
             };
 
             let settings = get_settings();
@@ -224,16 +218,16 @@
                 {onSlide: on_slide, onInit: on_slide, min:0.0, max: 1.0, value: settings.mutation_rate, step: 0.01}
             )
             rangesliderJs.default.create(
-                document.querySelector('input[name=selection_ratio]'),
-                {onSlide: on_slide, onInit: on_slide, min:0.0, max: 1.0, value: settings.selection_ratio, step: 0.01}
+                document.querySelector('input[name=selection_rate]'),
+                {onSlide: on_slide, onInit: on_slide, min:0.0, max: 1.0, value: settings.selection_rate, step: 0.01}
             )
             rangesliderJs.default.create(
-                document.querySelector('input[name=crossover_ratio]'),
-                {onSlide: on_slide, onInit: on_slide, min:0.0, max: 1.0, value: settings.crossover_ratio, step: 0.01}
+                document.querySelector('input[name=crossover_rate]'),
+                {onSlide: on_slide, onInit: on_slide, min:0.0, max: 1.0, value: settings.crossover_rate, step: 0.01}
             )
             rangesliderJs.default.create(
-                document.querySelector('input[name=crossover_clone_ratio]'),
-                {onSlide: on_slide, onInit: on_slide, min:0.0, max: 1.0, value: settings.crossover_clone_ratio, step: 0.01}
+                document.querySelector('input[name=crossover_clone_rate]'),
+                {onSlide: on_slide, onInit: on_slide, min:0.0, max: 1.0, value: settings.crossover_clone_rate, step: 0.01}
             )
             document.querySelectorAll('select[name=bot] option').forEach(function(el) {
                 if (el.value == settings.bot) {
