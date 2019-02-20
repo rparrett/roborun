@@ -126,7 +126,7 @@ impl Population {
                     .by_ref()
                     .take(keep as usize)
                     .choose_multiple(&mut rng, 2);
-                let mut child = Individual::breed(parents[0], parents[1]);
+                let mut child = Individual::one_gap_one_point(parents[0], parents[1]);
                 child.mutate(self.mutation_rate);
                 self.individuals.push(child);
             } else {

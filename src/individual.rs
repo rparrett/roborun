@@ -58,7 +58,69 @@ impl Individual {
         self.fitness = 0.0;
     }
 
-    pub fn breed(parent_a: &Individual, parent_b: &Individual) -> Individual {
+    pub fn one_gap_one_point(parent_a: &Individual, parent_b: &Individual) -> Individual {
+        let mut rng = OsRng::new().unwrap();
+
+        // we could assert(parent_a.alignment == parent_b.alignment)
+        let alignment = parent_a.alignment;
+
+        let (parent_l, parent_s) = match parent_a.genes.len() > parent_b.genes.len() {
+            true => (parent_a, parent_b),
+            false => (parent_b, parent_a),
+        };
+
+        let len = parent_l.genes.len();
+        let diff = len - parent_s.genes.len();
+
+        let gap_i = round_down_to_multiple(
+            rng.gen_range(alignment, parent_s.genes.len() - 1),
+            alignment,
+        );
+
+        let crossover_i = round_down_to_multiple(rng.gen_range(alignment, len - 1), alignment);
+
+        let mut genes_a: Vec<f32> = Vec::new();
+        let mut genes_b: Vec<f32> = Vec::new();
+
+        for i in 0..len {
+            let in_gap = i >= gap_i && i <= gap_i + diff - 1;
+
+            let s_i = match i > gap_i {
+                true => i - diff,
+                false => i,
+            };
+
+            if i >= crossover_i {
+                genes_a.push(*parent_l.genes.get(i).unwrap());
+                if !in_gap {
+                    genes_b.push(*parent_s.genes.get(s_i).unwrap());
+                }
+            } else {
+                genes_b.push(*parent_l.genes.get(i).unwrap());
+                if !in_gap {
+                    genes_a.push(*parent_s.genes.get(s_i).unwrap());
+                }
+            }
+        }
+
+        let fitness = 0.0;
+        let mut child_a = Individual {
+            genes: genes_a,
+            fitness,
+            alignment,
+        };
+        let mut child_b = Individual {
+            genes: genes_b,
+            fitness,
+            alignment,
+        };
+
+        // TODO yeah, we want both children obviously.
+        // need to fix up selection first.
+        child_a
+    }
+
+    pub fn messy_two_point(parent_a: &Individual, parent_b: &Individual) -> Individual {
         // this is a sort of "messy two point recombination" where the first
         // point is random-ish and the second point is always half the genome
         // length away from that, while taking care of the "alignment."
@@ -66,7 +128,7 @@ impl Individual {
         // https://journals.plos.org/plosone/article/file?id=10.1371/journal.pone.0209712&type=printable
         //
         // suggests that this is probably a terrible way to go about things.
-        
+
         let mut rng = OsRng::new().unwrap();
 
         let mut child = (*parent_a).clone();
