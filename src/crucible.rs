@@ -110,7 +110,7 @@ pub fn make_world(for_display: bool) -> World<f32> {
 
     let ground_shape = match for_display {
         true => ShapeHandle::new(Cuboid::new(Vector3::new(100.0, 10.0, 100.0))),
-        false => ShapeHandle::new(Cuboid::new(Vector3::new(1000.0, 10.0, 1000.0)))
+        false => ShapeHandle::new(Cuboid::new(Vector3::new(1000.0, 10.0, 1000.0))),
     };
     let ground_material = BasicMaterial::new(0.3, 0.9); // a somewhat squishy high friction ground
     ColliderDesc::new(ground_shape)
