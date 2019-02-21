@@ -5,6 +5,7 @@
         <title>roborun</title>
         <link rel="stylesheet" href="rangeslider.min.css">
         <link rel="stylesheet" href="spinner.css">
+        <link rel="stylesheet" href="switch.css">
         <style>
             html, body, canvas {
                 margin: 0px;
@@ -174,6 +175,14 @@
                         <br style="clear: both;">
                         <input type="range" parse="float" name="crossover_rate">
                     </div>
+                    <div class="switch-section">
+                        <div class="label">Elitism</div>
+                        <div class="value">
+                            <input type="checkbox" class="switch" name="elitism" id="elitism">
+                            <label class="switch-label" for="elitism">&nbsp;</label>
+                        </div>
+                        <br style="clear: both;">
+                    </div>
                     <button class="button" onclick="save_settings();window.location.reload();">Save</button>
                     <button class="button" onclick="reset_settings();window.location.reload();">Reset</button>
                 </div>
@@ -195,6 +204,7 @@
                 population: 100,
                 mutation_rate: 0.07,
                 crossover_rate: 0.6,
+                elitism: false,
             };
 
             let settings = get_settings();
@@ -220,6 +230,10 @@
                     el.setAttribute('selected', true);
                 }
             });
+            if (settings.elitism) {
+                document.querySelector('input[name=elitism]').setAttribute('checked', true);
+                
+            }
 
             function toggle_settings() {
                 let settings = document.getElementById('settings');
@@ -273,6 +287,16 @@
                     }
 
                     settings[name] = s.value;
+                });
+
+                let checkboxes = document.querySelectorAll('input[type=checkbox]');
+                checkboxes.forEach(function(s) {
+                    let name = s.getAttribute('name');
+                    if (!defaultSettings.hasOwnProperty(name)) {
+                        return;
+                    }
+                    
+                    settings[name] = s.checked;
                 });
                 
                 store.setItem('settings', JSON.stringify(settings));

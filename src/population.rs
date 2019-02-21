@@ -16,7 +16,7 @@ impl PopulationBuilder {
             num: 100,
             crossover_rate: 0.6,
             mutation_rate: 0.07,
-            elitist: true,
+            elitist: false,
         }
     }
 

@@ -1,0 +1,50 @@
+.switch-section {
+    line-height: 1,6em;
+    vertical-align: middle;
+    margin-bottom: 5px;
+}
+
+.switch {
+    display: none;
+}
+
+.switch-label {
+	cursor: pointer;
+	text-indent: -9999px;
+	width: 3.2em;
+	height: 1.6em;
+	background: #333;
+	display: block;
+	border-radius: 0.8em;
+	position: relative;
+}
+
+.switch-label:after {
+	content: '';
+	position: absolute;
+	top: 0.2em;
+	left: 0.2em;
+	width: 1.2em;
+	height: 1.2em;
+	background: #999;
+	border-radius: 0.9em;
+	transition: left 0.3s, transform 0.3s;
+}
+
+.switch-label:hover:after,
+.switch:checked + .switch-label:hover:after {
+    background: #268bd2;
+}
+
+.switch:checked + .switch-label {
+}
+
+.switch:checked + .switch-label:after {
+    background-color: #fff;
+	left: calc(100% - 0.2em);
+	transform: translateX(-100%);
+}
+
+,switch:active:after {
+	width: 2.8em;
+}
