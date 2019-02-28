@@ -33,3 +33,4 @@ TODO
   - Mutation magnitude 
   - Genome sizemin/max genome size
 - It would be nice if we didn't have to refresh the whole page after changing settings
+- Split off robot step() into a DumbRobotBrain struct that each robot has an instance of?
