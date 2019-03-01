@@ -176,10 +176,10 @@
                         <input type="range" parse="float" name="crossover_rate">
                     </div>
                     <div class="switch-section">
-                        <div class="label">Elitism</div>
+                        <div class="label">Elitist</div>
                         <div class="value">
-                            <input type="checkbox" class="switch" name="elitism" id="elitism">
-                            <label class="switch-label" for="elitism">&nbsp;</label>
+                            <input type="checkbox" class="switch" name="elitist" id="elitist">
+                            <label class="switch-label" for="elitist">&nbsp;</label>
                         </div>
                         <br style="clear: both;">
                     </div>
@@ -204,7 +204,7 @@
                 population: 100,
                 mutation_rate: 0.07,
                 crossover_rate: 0.6,
-                elitism: false,
+                elitist: false,
             };
 
             let settings = get_settings();
@@ -230,8 +230,8 @@
                     el.setAttribute('selected', true);
                 }
             });
-            if (settings.elitism) {
-                document.querySelector('input[name=elitism]').setAttribute('checked', true);
+            if (settings.elitist) {
+                document.querySelector('input[name=elitist]').setAttribute('checked', true);
                 
             }
 

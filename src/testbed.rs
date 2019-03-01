@@ -74,6 +74,7 @@ pub struct Settings {
     population: usize,
     mutation_rate: f32,
     crossover_rate: f32,
+    elitist: bool,
 }
 js_deserializable!(Settings);
 
@@ -115,6 +116,7 @@ impl Testbed {
             .mutation_rate(settings.mutation_rate)
             .crossover_rate(settings.crossover_rate)
             .size(settings.population)
+            .elitist(settings.elitist)
             .build();
 
         let bot = settings.bot.clone();
