@@ -24,7 +24,6 @@ TODO
   - base64?
 - Should bots be responsible for providing a function that returns a random individual?
   - Or an IndividualBuilder?
-- Figure out why Clippy isn't working
 - For various settings inputs, we can check if the step value contains a decimal and get rid of the parse attribute
 - Various settings are causing panics at extreme values
 - Setting ideas
