@@ -1,6 +1,5 @@
 use std::mem;
 use std::path::Path;
-use std::rc::Rc;
 use std::sync::{Arc, RwLock};
 
 use crate::crucible::{make_world, Crucible, GenerationStats};
@@ -14,7 +13,6 @@ use kiss3d::light::Light;
 use kiss3d::loader::obj;
 use kiss3d::planar_camera::PlanarCamera;
 use kiss3d::post_processing::PostProcessingEffect;
-use kiss3d::text::Font;
 use kiss3d::window::{State, Window};
 use na::{self, Point3};
 use nphysics3d::object::{BodyHandle, BodyPart, ColliderHandle};
