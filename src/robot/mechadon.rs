@@ -1,28 +1,12 @@
 use crate::actuator::Actuator;
 use crate::individual::Individual;
+use crate::robot::brain::DumbBrain;
 use itertools::Itertools;
 use na::{Isometry3, Point3, Unit, Vector3};
 use ncollide3d::shape::{Cuboid, ShapeHandle};
 use nphysics3d::joint::{FreeJoint, RevoluteJoint};
 use nphysics3d::object::{Body, BodyHandle, BodyPart, ColliderDesc, MultibodyDesc};
 use nphysics3d::world::World;
-
-#[derive(Debug)]
-pub struct Actuation {
-    actuator: usize,
-    time: f32,
-    position: f32,
-}
-
-impl Actuation {
-    pub fn new(actuator: usize, time: f32, position: f32) -> Actuation {
-        Actuation {
-            actuator,
-            time,
-            position,
-        }
-    }
-}
 
 /// Bot inspired by the "battle bot" mechadon.
 ///
@@ -32,20 +16,14 @@ impl Actuation {
 /// accomplish this.
 pub struct Mechadon {
     pub body: Option<BodyHandle>,
-    actuators: Vec<Actuator>,
-    time: f32,
-    actuations: Vec<Actuation>,
-    current_actuation: usize,
+    brain: DumbBrain,
 }
 
 impl Mechadon {
     pub fn new() -> Mechadon {
         Mechadon {
             body: None,
-            actuators: Vec::new(),
-            time: 0.0,
-            actuations: Vec::new(),
-            current_actuation: 0,
+            brain: DumbBrain::new(),
         }
     }
 
@@ -182,11 +160,11 @@ impl Mechadon {
         id += 1;
 
         let leg_e_shape = ShapeHandle::new(Cuboid::new(Vector3::new(0.5, 4.0, 0.5)));
-        let leg_e_eollider = ColliderDesc::new(leg_e_shape).density(density);
+        let leg_e_collider = ColliderDesc::new(leg_e_shape).density(density);
         let leg_e_joint =
             RevoluteJoint::new(Unit::new_normalize(Vector3::new(0.0, 0.0, -1.0)), 0.0);
         MultibodyDesc::new(leg_e_joint)
-            .collider(&leg_e_eollider)
+            .collider(&leg_e_collider)
             .body_shift(Vector3::new(0.0, leg_joint_offset_y, 0.0))
             .parent_shift(Vector3::new(0.0, leg_offset_y, leg_offset_z))
             .build_with_parent(sub_body_b_handle, world)
@@ -199,10 +177,10 @@ impl Mechadon {
         id += 1;
 
         let leg_f_shape = ShapeHandle::new(Cuboid::new(Vector3::new(0.5, 4.0, 0.5)));
-        let leg_f_eollider = ColliderDesc::new(leg_f_shape).density(density);
+        let leg_f_collider = ColliderDesc::new(leg_f_shape).density(density);
         let leg_f_joint = RevoluteJoint::new(Vector3::z_axis(), 0.0);
         MultibodyDesc::new(leg_f_joint)
-            .collider(&leg_f_eollider)
+            .collider(&leg_f_collider)
             .body_shift(Vector3::new(0.0, leg_joint_offset_y, 0.0))
             .parent_shift(Vector3::new(0.0, leg_offset_y, -1.0 * leg_offset_z))
             .build_with_parent(sub_body_b_handle, world)
@@ -213,21 +191,31 @@ impl Mechadon {
         actuator_f.set_max_angle(leg_max_angle);
         actuator_f.set_min_angle(leg_min_angle);
 
-        self.actuators.push(actuator_b_a);
-        self.actuators.push(actuator_b_b);
-
-        self.actuators.push(actuator_a);
-        self.actuators.push(actuator_b);
-        self.actuators.push(actuator_c);
-        self.actuators.push(actuator_d);
-        self.actuators.push(actuator_e);
-        self.actuators.push(actuator_f);
-
-        for a in self.actuators.iter_mut() {
+        for a in [
+            &mut actuator_b_a,
+            &mut actuator_b_b,
+            &mut actuator_a,
+            &mut actuator_b,
+            &mut actuator_c,
+            &mut actuator_d,
+            &mut actuator_e,
+            &mut actuator_f,
+        ]
+        .iter_mut()
+        {
             a.set_max_torque(60.0);
             a.set_max_velocity(1.0);
             a.setup(world);
         }
+
+        self.brain.push_actuator(actuator_b_a);
+        self.brain.push_actuator(actuator_b_b);
+        self.brain.push_actuator(actuator_a);
+        self.brain.push_actuator(actuator_b);
+        self.brain.push_actuator(actuator_c);
+        self.brain.push_actuator(actuator_d);
+        self.brain.push_actuator(actuator_e);
+        self.brain.push_actuator(actuator_f);
 
         self.body = Some(body_handle);
 
@@ -235,88 +223,40 @@ impl Mechadon {
         // be replaced by a default individual with the appropriate
         // genes.
 
-        self.actuations.push(Actuation::new(0, 1.0, -0.1));
-        self.actuations.push(Actuation::new(1, 1.0, -0.1));
-        self.actuations.push(Actuation::new(2, 1.0, -0.1));
-        self.actuations.push(Actuation::new(3, 1.0, -0.1));
-        self.actuations.push(Actuation::new(4, 1.0, -0.1));
-        self.actuations.push(Actuation::new(0, 2.5, 1.0));
-        self.actuations.push(Actuation::new(1, 2.5, 1.0));
-        self.actuations.push(Actuation::new(2, 2.5, 1.0));
-        self.actuations.push(Actuation::new(3, 2.5, 1.0));
-        self.actuations.push(Actuation::new(4, 2.5, 1.0));
+        self.brain.push_actuation(0, 1.0, -0.1);
+        self.brain.push_actuation(1, 1.0, -0.1);
+        self.brain.push_actuation(2, 1.0, -0.1);
+        self.brain.push_actuation(3, 1.0, -0.1);
+        self.brain.push_actuation(4, 1.0, -0.1);
+        self.brain.push_actuation(0, 2.5, 1.0);
+        self.brain.push_actuation(1, 2.5, 1.0);
+        self.brain.push_actuation(2, 2.5, 1.0);
+        self.brain.push_actuation(3, 2.5, 1.0);
+        self.brain.push_actuation(4, 2.5, 1.0);
     }
 
     pub fn spawn_individual(&mut self, individual: &Individual, world: &mut World<f32>) {
         self.spawn(world);
 
-        self.actuations.clear();
+        self.brain.reset();
 
         for (a, b, c) in individual.genes.iter().tuples::<(_, _, _)>() {
-            let actuator = (a * self.actuators.len() as f32) as usize;
-            let range = self.actuators[actuator].max_angle - self.actuators[actuator].min_angle;
+            let actuator = (a * self.brain.len_actuators() as f32) as usize;
+            let range =
+                self.brain.actuator(actuator).max_angle - self.brain.actuator(actuator).min_angle;
 
-            self.actuations.push(Actuation::new(
+            self.brain.push_actuation(
                 actuator,
                 b * 5.0,
-                c * range + self.actuators[actuator].min_angle,
-            ));
+                c * range + self.brain.actuator(actuator).min_angle,
+            );
         }
 
-        self.actuations
-            .sort_by(|a, b| a.time.partial_cmp(&b.time).unwrap());
+        self.brain.setup();
     }
 
     pub fn step(&mut self, world: &mut World<f32>, elapsed: f32) {
-        // Step through our list of desired actuations until our current time
-        // is past the last actuation. Then reset everything.
-        //
-        // It's possible that an actuator could be commanded to multiple
-        // positions within the same time step. In that case, all but the
-        // last are effectively ignored.
-        //
-        // Note: the cycle resets after the last commanded actuation, even if
-        // there is time remaining in the maximum cycle length. This lets bots
-        // achieve a higher frequency of oscillation without explicitly encoding
-        // that frequency in a gene. It would be interesting to try that approach,
-        // because as genomes grow, the effective cycle length trends towards the
-        // maximum.
-
-        self.time += elapsed;
-
-        loop {
-            // This really should never happen, and we could probably just
-            // unwrap.
-
-            let actuation = self.actuations.get(self.current_actuation);
-            if actuation.is_none() {
-                break;
-            }
-            let actuation = actuation.unwrap();
-
-            if self.time < actuation.time {
-                break;
-            }
-
-            if let Some(actuator) = self.actuators.get_mut(actuation.actuator) {
-                actuator.set_position(actuation.position);
-            } else {
-                break;
-            }
-
-            self.current_actuation += 1;
-
-            if self.current_actuation >= self.actuations.len() {
-                self.current_actuation = 0;
-                self.time = 0.0;
-
-                break;
-            }
-        }
-
-        for a in self.actuators.iter_mut() {
-            a.step(world);
-        }
+        self.brain.step(world, elapsed);
     }
 
     pub fn fitness(&self, world: &World<f32>) -> f32 {

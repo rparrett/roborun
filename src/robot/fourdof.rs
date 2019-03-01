@@ -1,5 +1,6 @@
 use crate::actuator::Actuator;
 use crate::individual::Individual;
+use crate::robot::brain::DumbBrain;
 use itertools::Itertools;
 use na::{Isometry3, Point3, Unit, Vector3};
 use ncollide3d::shape::{Cuboid, ShapeHandle};
@@ -7,39 +8,16 @@ use nphysics3d::joint::{FreeJoint, RevoluteJoint};
 use nphysics3d::object::{Body, BodyHandle, BodyPart, ColliderDesc, MultibodyDesc};
 use nphysics3d::world::World;
 
-#[derive(Debug)]
-pub struct Actuation {
-    actuator: usize,
-    time: f32,
-    position: f32,
-}
-
-impl Actuation {
-    pub fn new(actuator: usize, time: f32, position: f32) -> Actuation {
-        Actuation {
-            actuator,
-            time,
-            position,
-        }
-    }
-}
-
 pub struct Fourdof {
     pub body: Option<BodyHandle>,
-    actuators: Vec<Actuator>,
-    time: f32,
-    actuations: Vec<Actuation>,
-    current_actuation: usize,
+    brain: DumbBrain,
 }
 
 impl Fourdof {
     pub fn new() -> Fourdof {
         Fourdof {
             body: None,
-            actuators: Vec::new(),
-            time: 0.0,
-            actuations: Vec::new(),
-            current_actuation: 0,
+            brain: DumbBrain::new(),
         }
     }
 
@@ -117,12 +95,14 @@ impl Fourdof {
         let mut actuator_d = Actuator::new(body_handle, id);
         actuator_d.set_name("leg_d");
 
-        self.actuators.push(actuator_a);
-        self.actuators.push(actuator_b);
-        self.actuators.push(actuator_c);
-        self.actuators.push(actuator_d);
-
-        for a in self.actuators.iter_mut() {
+        for a in [
+            &mut actuator_a,
+            &mut actuator_b,
+            &mut actuator_c,
+            &mut actuator_d,
+        ]
+        .iter_mut()
+        {
             a.set_max_angle(1.5);
             a.set_min_angle(-0.2);
             a.set_max_torque(160.0);
@@ -130,86 +110,45 @@ impl Fourdof {
             a.setup(world);
         }
 
+        self.brain.push_actuator(actuator_a);
+        self.brain.push_actuator(actuator_b);
+        self.brain.push_actuator(actuator_c);
+        self.brain.push_actuator(actuator_d);
+
         self.body = Some(body_handle);
 
         // TODO: These default actuations for testing should probably
         // be replaced by a default individual with the appropriate
         // genes.
 
-        self.actuations.push(Actuation::new(0, 1.0, -0.1));
-        self.actuations.push(Actuation::new(1, 1.0, -0.1));
-        self.actuations.push(Actuation::new(2, 1.0, -0.1));
-        self.actuations.push(Actuation::new(3, 1.0, -0.1));
-        self.actuations.push(Actuation::new(0, 2.5, 1.0));
-        self.actuations.push(Actuation::new(1, 2.5, 1.0));
-        self.actuations.push(Actuation::new(2, 2.5, 1.0));
-        self.actuations.push(Actuation::new(3, 2.5, 1.0));
+        self.brain.push_actuation(0, 1.0, -0.1);
+        self.brain.push_actuation(1, 1.0, -0.1);
+        self.brain.push_actuation(2, 1.0, -0.1);
+        self.brain.push_actuation(3, 1.0, -0.1);
+        self.brain.push_actuation(0, 2.5, 1.0);
+        self.brain.push_actuation(1, 2.5, 1.0);
+        self.brain.push_actuation(2, 2.5, 1.0);
+        self.brain.push_actuation(3, 2.5, 1.0);
     }
 
     pub fn spawn_individual(&mut self, individual: &Individual, world: &mut World<f32>) {
         self.spawn(world);
 
-        self.actuations.clear();
+        self.brain.reset();
 
         for (a, b, c) in individual.genes.iter().tuples::<(_, _, _)>() {
-            self.actuations.push(Actuation::new(
-                (a * self.actuators.len() as f32) as usize,
+            self.brain.push_actuation(
+                (a * self.brain.len_actuators() as f32) as usize,
                 b * 5.0,
                 c * 1.7 - 0.2,
-            ));
+            );
         }
+
+        self.brain.setup();
     }
 
     pub fn step(&mut self, world: &mut World<f32>, elapsed: f32) {
-        // Step through our list of desired actuations until our current time
-        // is past the last actuation. Then reset everything.
-        //
-        // It's possible that an actuator could be commanded to multiple
-        // positions within the same time step. In that case, all but the
-        // last are effectively ignored.
-        //
-        // Note: the cycle resets after the last commanded actuation, even if
-        // there is time remaining in the maximum cycle length. This lets bots
-        // achieve a higher frequency of oscillation without explicitly encoding
-        // that frequency in a gene. It would be interesting to try that approach,
-        // because as genomes grow, the effective cycle length trends towards the
-        // maximum.
-
-        self.time += elapsed;
-
-        loop {
-            // This really should never happen, and we could probably just
-            // unwrap.
-
-            let actuation = self.actuations.get(self.current_actuation);
-            if actuation.is_none() {
-                break;
-            }
-            let actuation = actuation.unwrap();
-
-            if self.time < actuation.time {
-                break;
-            }
-
-            if let Some(actuator) = self.actuators.get_mut(actuation.actuator) {
-                actuator.set_position(actuation.position);
-            } else {
-                break;
-            }
-
-            self.current_actuation += 1;
-
-            if self.current_actuation >= self.actuations.len() {
-                self.current_actuation = 0;
-                self.time = 0.0;
-
-                break;
-            }
-        }
-
-        for a in self.actuators.iter_mut() {
-            a.step(world);
-        }
+        self.brain.step(world, elapsed);
     }
 
     pub fn fitness(&self, world: &World<f32>) -> f32 {

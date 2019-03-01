@@ -5,6 +5,8 @@ use nphysics3d::world::World;
 pub mod fourdof;
 pub mod mechadon;
 
+pub mod brain;
+
 use crate::robot::fourdof::Fourdof;
 use crate::robot::mechadon::Mechadon;
 

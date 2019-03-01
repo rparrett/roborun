@@ -11,7 +11,7 @@ TODO
 - Better textures for bots and arena. Skybox?
 - A simple circle shadow for the bot
 - Add additional interesting robot variants
-- DRY the bots
+- DRY the bots even more
 - Account for various computation speeds and population settings in bot display
   - We want to show a bot at least for the whole simulation period
   - If the sim of one generation takes a bit longer than that, it's okay
