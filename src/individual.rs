@@ -67,18 +67,16 @@ impl Individual {
         // we could assert(parent_a.alignment == parent_b.alignment)
         let alignment = parent_a.alignment;
 
-        let (parent_l, parent_s) = match parent_a.genes.len() > parent_b.genes.len() {
-            true => (parent_a, parent_b),
-            false => (parent_b, parent_a),
+        let (parent_l, parent_s) = if parent_a.genes.len() > parent_b.genes.len() {
+            (parent_a, parent_b)
+        } else {
+            (parent_b, parent_a)
         };
 
         let len = parent_l.genes.len();
         let diff = len - parent_s.genes.len();
 
-        let gap_i = round_down_to_multiple(
-            rng.gen_range(0, parent_s.genes.len() - 1),
-            alignment,
-        );
+        let gap_i = round_down_to_multiple(rng.gen_range(0, parent_s.genes.len() - 1), alignment);
 
         let crossover_i = round_down_to_multiple(rng.gen_range(alignment, len - 1), alignment);
 
@@ -86,22 +84,19 @@ impl Individual {
         let mut genes_b: Vec<f32> = Vec::new();
 
         for i in 0..len {
-            let in_gap = i >= gap_i && i <= gap_i + diff - 1;
+            let in_gap = i >= gap_i && i < gap_i + diff;
 
-            let s_i = match i > gap_i {
-                true => i - diff,
-                false => i,
-            };
+            let s_i = if i > gap_i { i - diff } else { i };
 
             if i >= crossover_i {
-                genes_a.push(*parent_l.genes.get(i).unwrap());
+                genes_a.push(parent_l.genes[i]);
                 if !in_gap {
-                    genes_b.push(*parent_s.genes.get(s_i).unwrap());
+                    genes_b.push(parent_s.genes[s_i]);
                 }
             } else {
-                genes_b.push(*parent_l.genes.get(i).unwrap());
+                genes_b.push(parent_l.genes[i]);
                 if !in_gap {
-                    genes_a.push(*parent_s.genes.get(s_i).unwrap());
+                    genes_a.push(parent_s.genes[s_i]);
                 }
             }
         }
@@ -122,7 +117,7 @@ impl Individual {
     }
 
     pub fn one_gap_one_point_genes<T>(a: T, b: T, alignment: usize) -> (T, T) {
-        return (a, b);
+        (a, b)
     }
 
     pub fn messy_two_point(parent_a: &Individual, parent_b: &Individual) -> Individual {

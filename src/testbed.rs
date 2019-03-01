@@ -5,9 +5,7 @@ use std::sync::{Arc, RwLock};
 
 use crate::crucible::{make_world, Crucible, GenerationStats};
 use crate::engine::GraphicsManager;
-use crate::population::{Population, PopulationBuilder};
-use crate::robot::fourdof::Fourdof;
-use crate::robot::mechadon::Mechadon;
+use crate::population::PopulationBuilder;
 use crate::robot::Robot;
 use crate::world_owner::WorldOwner;
 use kiss3d::camera::Camera;
@@ -18,7 +16,7 @@ use kiss3d::planar_camera::PlanarCamera;
 use kiss3d::post_processing::PostProcessingEffect;
 use kiss3d::text::Font;
 use kiss3d::window::{State, Window};
-use na::{self, Point2, Point3};
+use na::{self, Point3};
 use nphysics3d::object::{BodyHandle, BodyPart, ColliderHandle};
 use nphysics3d::world::World;
 use serde::{Deserialize, Serialize};
@@ -41,7 +39,6 @@ pub struct Testbed {
     time: f32,
     settings: Settings,
 
-    font: Rc<Font>,
     running: RunMode,
 
     robot: Option<Robot>,
@@ -135,7 +132,6 @@ impl Testbed {
             graphics,
             nsteps: 100,
             time: 0.0,
-            font: Font::from_bytes(include_bytes!("../assets/UbuntuMono-Regular.ttf")).unwrap(),
             running: RunMode::Step,
             crucible,
             robot: None,
@@ -311,7 +307,7 @@ impl State for Testbed {
             self.reset = false;
         }
 
-        for mut event in window.events().iter() {
+        for event in window.events().iter() {
             match event.value {
                 WindowEvent::Key(Key::T, Action::Release, _) => {
                     if self.running == RunMode::Stop {
@@ -361,7 +357,7 @@ impl State for Testbed {
 
         // status display
 
-        if self.reset == true {
+        if self.reset {
             if let Some(stats) = self.crucible.stats.last() {
                 let generation_stats_for_js = GenerationStatsForJS {
                     generation: self.crucible.generation,

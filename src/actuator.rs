@@ -23,9 +23,9 @@ impl Actuator {
             max_velocity: 1.0,
             desired_position: 0.0,
             deadzone: 0.02,
-            handle: handle,
             name: "?",
-            id: id,
+            handle,
+            id,
         }
     }
 

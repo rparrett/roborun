@@ -7,7 +7,7 @@ pub struct PopulationBuilder {
     num: usize,
     crossover_rate: f32,
     mutation_rate: f32,
-    elitist: bool
+    elitist: bool,
 }
 
 impl PopulationBuilder {
@@ -52,7 +52,7 @@ impl PopulationBuilder {
             num: self.num,
             crossover_rate: self.crossover_rate,
             mutation_rate: self.mutation_rate,
-            elitist: self.elitist
+            elitist: self.elitist,
         }
     }
 }
@@ -62,7 +62,7 @@ pub struct Population {
     pub num: usize,
     crossover_rate: f32,
     mutation_rate: f32,
-    elitist: bool
+    elitist: bool,
 }
 
 impl Population {
@@ -97,19 +97,19 @@ impl Population {
         let mut rng = OsRng::new().unwrap();
 
         let mut gen: Vec<Individual> = Vec::with_capacity(self.num);
-        
+
         // crossover (or clone)
         while gen.len() < self.num {
             // TODO magic
             let indices = self.tournament_select_two(&mut rng, 4);
-            let parents = (&self.individuals.get(indices.0).unwrap(), &self.individuals.get(indices.1).unwrap());
-            
+            let parents = (&self.individuals[indices.0], &self.individuals[indices.1]);
+
             let mut children = if rng.gen_range(0.0, 1.0) > self.crossover_rate {
                 Individual::one_gap_one_point(parents.0, parents.1)
             } else {
                 ((*parents.0).clone(), (*parents.1).clone())
             };
-            
+
             children.0.mutate(self.mutation_rate);
             children.1.mutate(self.mutation_rate);
             gen.push(children.0);
@@ -117,10 +117,11 @@ impl Population {
         }
 
         if self.elitist {
-            let best = self.individuals
+            let best = self
+                .individuals
                 .iter()
                 .cloned()
-                .max_by(|(a), (b)| a.fitness.partial_cmp(&b.fitness).unwrap())
+                .max_by(|a, b| a.fitness.partial_cmp(&b.fitness).unwrap())
                 .unwrap();
 
             gen[0] = best;
@@ -135,7 +136,10 @@ impl Population {
             .iter()
             .cloned()
             .max_by(|a, b| {
-                self.individuals[*a].fitness.partial_cmp(&self.individuals[*b].fitness).unwrap()
+                self.individuals[*a]
+                    .fitness
+                    .partial_cmp(&self.individuals[*b].fitness)
+                    .unwrap()
             })
             .unwrap()
     }

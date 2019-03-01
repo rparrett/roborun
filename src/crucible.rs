@@ -75,8 +75,7 @@ impl Crucible {
             self.step = 0;
             self.elapsed = 0.0;
 
-            self.population.individuals[self.individual].fitness =
-                self.robot.fitness(&mut self.world);
+            self.population.individuals[self.individual].fitness = self.robot.fitness(&self.world);
 
             self.individual += 1;
 
@@ -108,9 +107,10 @@ pub fn make_world(for_display: bool) -> World<f32> {
     // want the displayed robots to have a goal of eventually reaching the edge of the
     // world and falling off.
 
-    let ground_shape = match for_display {
-        true => ShapeHandle::new(Cuboid::new(Vector3::new(100.0, 10.0, 100.0))),
-        false => ShapeHandle::new(Cuboid::new(Vector3::new(1000.0, 10.0, 1000.0))),
+    let ground_shape = if for_display {
+        ShapeHandle::new(Cuboid::new(Vector3::new(100.0, 10.0, 100.0)))
+    } else {
+        ShapeHandle::new(Cuboid::new(Vector3::new(1000.0, 10.0, 1000.0)))
     };
     let ground_material = BasicMaterial::new(0.3, 0.9); // a somewhat squishy high friction ground
     ColliderDesc::new(ground_shape)
@@ -118,5 +118,5 @@ pub fn make_world(for_display: bool) -> World<f32> {
         .material(MaterialHandle::new(ground_material))
         .build(&mut world);
 
-    return world;
+    world
 }

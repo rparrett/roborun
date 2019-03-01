@@ -17,9 +17,9 @@ pub struct Actuation {
 impl Actuation {
     pub fn new(actuator: usize, time: f32, position: f32) -> Actuation {
         Actuation {
-            actuator: actuator,
-            time: time,
-            position: position,
+            actuator,
+            time,
+            position,
         }
     }
 }
@@ -351,11 +351,9 @@ impl Mechadon {
 
         let translation = pos.translation;
 
-        let dist = nalgebra::distance(
+        nalgebra::distance(
             &Point3::new(translation.vector[0], 0.0, translation.vector[2]),
             &Point3::new(0.0, 0.0, 0.0),
-        );
-
-        dist
+        )
     }
 }
